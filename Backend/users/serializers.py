@@ -12,12 +12,11 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Handles new user registration and fetching user data.
     """
-    # This field will dynamically create the full avatar URL.
     avatar_url = serializers.SerializerMethodField()
     
     class Meta:
         model = CustomUser
-        # NOTE: 'budget' has been removed from initial signup.
+        # 'budget' has been removed from initial signup for a better user flow.
         fields = (
             'id', 'username', 'email', 'password', 'first_name', 'last_name', 'role', 'avatar_url',
             'city', 'cleanliness', 'sleep_schedule', 'noise_level', 'guest_frequency', 
@@ -30,11 +29,9 @@ class UserSerializer(serializers.ModelSerializer):
         }
         
     def get_avatar_url(self, obj):
-        # Returns the full URL if an avatar exists, otherwise None.
         return obj.avatar.url if obj.avatar else None
 
     def create(self, validated_data):
-        # Correctly creates a new user with a hashed password.
         user = CustomUser.objects.create_user(**validated_data)
         return user
 
@@ -46,7 +43,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        # Includes all fields a user can update on their profile page.
         fields = (
             'first_name', 'last_name', 'email', 'avatar', 'avatar_url', 'city',
             'cleanliness', 'sleep_schedule', 'noise_level', 'guest_frequency',

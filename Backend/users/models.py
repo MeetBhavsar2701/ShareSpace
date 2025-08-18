@@ -12,6 +12,9 @@ class CustomUser(AbstractUser):
     city = models.CharField(max_length=100, blank=True, null=True)
     avatar = CloudinaryField('avatar', blank=True, null=True)
 
+    # --- FIX: Use a string reference to avoid circular import ---
+    favorites = models.ManyToManyField('listings.Listing', related_name="favorited_by", blank=True)
+
     # Lifestyle and Matching Attributes
     cleanliness = models.IntegerField(default=3) # Scale 1-5
     sleep_schedule = models.CharField(max_length=20, default='Flexible')
