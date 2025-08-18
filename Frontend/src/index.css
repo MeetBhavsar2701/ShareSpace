@@ -20,3 +20,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    /* ADD THIS LINE for a subtle gradient */
+    background-image: linear-gradient(to bottom right, hsl(var(--background)), hsl(var(--secondary)));
+  }
+}

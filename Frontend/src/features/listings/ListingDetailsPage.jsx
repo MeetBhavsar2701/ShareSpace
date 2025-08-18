@@ -1,112 +1,114 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import api from "@/api";
+import { Map, Marker } from "pigeon-maps";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-// Assuming you have a RadarChart component for compatibility
-// import { CompatibilityRadarChart } from "@/components/RadarChart";
-import { Bath, BedDouble, CheckCircle, Home, Users, Wifi } from "lucide-react";
-
-// Mock Data
-const listing = {
-  title: "Sunny Downtown Loft with Great Views",
-  location: "Urban Core, Metro City",
-  price: 1200,
-  images: [
-    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
-    "https://images.unsplash.com/photo-1556702581-3701a0a2a7a8",
-    "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af",
-  ],
-  details: { bedrooms: 3, bathrooms: 2, roommates: 2 },
-  description:
-    "A beautiful, sunlit loft in the heart of the city, perfect for young professionals. Comes with a spacious living area, modern kitchen, and stunning city views. You'll be sharing with two friendly and tidy roommates who enjoy quiet evenings but are up for a weekend outing.",
-  amenities: ["Wi-Fi", "In-unit Laundry", "Air Conditioning", "Dishwasher", "Furnished"],
-  roommates: [
-    { name: "Jessica", avatar: "https://i.pravatar.cc/150?img=1", bio: "Designer, loves plants and quiet nights." },
-    { name: "Mike", avatar: "https://i.pravatar.cc/150?img=2", bio: "Software engineer, enjoys hiking and board games." },
-  ],
-};
+import { MapPin, Home, Users } from "lucide-react";
 
 export default function ListingDetailsPage() {
+  const { id } = useParams();
+  const [listing, setListing] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchListingDetails = async () => {
+      try {
+        const response = await api.get(`/listings/${id}/`);
+        setListing(response.data);
+      } catch (error) {
+        console.error("Failed to fetch listing details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchListingDetails();
+  }, [id]);
+
+  if (loading) return <div>Loading...</div>;
+  if (!listing) return <div>Listing not found.</div>;
+
+  const allImages = [listing.image_url, ...listing.images.map(img => img.image_url)].filter(Boolean);
+  const mapCenter = (listing.latitude && listing.longitude) ? [listing.latitude, listing.longitude] : null;
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
       <main className="flex-grow container mx-auto py-12 px-4 md:px-6">
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column: Images and Details */}
-          <div className="lg:col-span-2">
-            <h1 className="text-3xl lg:text-4xl font-bold">{listing.title}</h1>
-            <p className="text-lg text-muted-foreground mt-2">{listing.location}</p>
-
-            <Carousel className="w-full my-6">
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-8">
+            <div className="space-y-2">
+                <h1 className="text-3xl lg:text-4xl font-bold">{listing.title}</h1>
+                <div className="flex items-center text-lg text-muted-foreground">
+                  <MapPin className="h-5 w-5 mr-2 flex-shrink-0" />
+                  <span>{listing.address}, {listing.city}</span>
+                </div>
+            </div>
+            <Carousel className="w-full">
               <CarouselContent>
-                {listing.images.map((src, index) => (
+                {allImages.length > 0 ? allImages.map((src, index) => (
                   <CarouselItem key={index}>
-                    <img
-                      src={src}
-                      alt={`Listing image ${index + 1}`}
-                      className="rounded-xl w-full h-[450px] object-cover"
-                    />
+                    <img src={src} alt={`Listing image ${index + 1}`} className="rounded-xl w-full h-[450px] object-cover" />
                   </CarouselItem>
-                ))}
+                )) : (
+                  <CarouselItem>
+                    <div className="rounded-xl w-full h-[450px] bg-gray-200 flex items-center justify-center text-muted-foreground">No Image Available</div>
+                  </CarouselItem>
+                )}
               </CarouselContent>
-              <CarouselPrevious className="ml-16" />
-              <CarouselNext className="mr-16" />
+              {allImages.length > 1 && <> <CarouselPrevious className="ml-16" /> <CarouselNext className="mr-16" /> </>}
             </Carousel>
-
-            <div className="border-t pt-6">
-              <h2 className="text-2xl font-bold">About this space</h2>
+            <div className="border-t pt-8">
+              <h2 className="text-2xl font-bold flex items-center gap-3"><Home />About this space</h2>
               <p className="mt-4 text-gray-700 leading-relaxed">{listing.description}</p>
             </div>
-
-            <div className="border-t pt-6 mt-6">
-              <h2 className="text-2xl font-bold">Amenities</h2>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                {listing.amenities.map((item) => (
-                  <div key={item} className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-blue-600" />
-                    <span>{item}</span>
-                  </div>
-                ))}
+            {mapCenter && (
+              <div className="border-t pt-8">
+                <h2 className="text-2xl font-bold">Location</h2>
+                <div className="mt-4 h-80 w-full rounded-lg overflow-hidden border">
+                  <Map center={mapCenter} defaultZoom={14}>
+                    <Marker width={40} anchor={mapCenter} color="#10B981" />
+                  </Map>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-
-          {/* Right Column: Booking and Roommates */}
-          <div className="lg:col-span-1 space-y-6">
-            <Card className="sticky top-24">
-              <CardContent className="p-6">
-                <p className="text-3xl font-bold">
-                  ${listing.price}
-                  <span className="text-lg font-normal text-muted-foreground">/month</span>
-                </p>
-                <Button size="lg" className="w-full mt-6 bg-blue-600 hover:bg-blue-700">
-                  Request to Connect
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Meet Your Future Roommates</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {listing.roommates.map((mate) => (
-                  <div key={mate.name} className="flex items-center gap-4">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={mate.avatar} />
-                      <AvatarFallback>{mate.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-semibold">{mate.name}</p>
-                      <p className="text-sm text-muted-foreground">{mate.bio}</p>
+          {/* Right Column */}
+          <div className="relative lg:col-span-1">
+            <div className="sticky top-24 space-y-6">
+              <Card className="shadow-lg">
+                <CardContent className="p-6">
+                  <p className="text-3xl font-bold">
+                    ₹{listing.rent.toLocaleString('en-IN')}
+                    <span className="text-lg font-normal text-muted-foreground">/month</span>
+                  </p>
+                  <Button size="lg" className="w-full mt-6 bg-emerald-500 hover:bg-emerald-600">
+                    Request to Connect
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3"><Users/>Lister Information</CardTitle>
+                </CardHeader>
+                <CardContent>
+                   <div className="flex items-center gap-4">
+                      <Avatar className="h-12 w-12">
+                        <AvatarFallback>{listing.lister_username.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold">{listing.lister_username}</p>
+                        <p className="text-sm text-muted-foreground">Joined recently</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </main>

@@ -1,55 +1,110 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { useState, useEffect } from 'react';
+import api from '@/api';
+import { toast } from 'sonner';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function ProfilePage() {
+  const [user, setUser] = useState(null);
+  const [newAvatar, setNewAvatar] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get('/users/profile/update/'); 
+        setUser(response.data);
+        setPreview(response.data.avatar_url);
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        toast.error("Could not load profile data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewAvatar(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!newAvatar) {
+        toast.info("No new photo selected.");
+        return;
+    }
+    const formData = new FormData();
+    formData.append('avatar', newAvatar);
+    
+    try {
+      const response = await api.patch('/users/profile/update/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast.success('Profile updated successfully!');
+      const newAvatarUrl = response.data.avatar_url;
+      setUser(response.data);
+      setPreview(newAvatarUrl);
+      // FIX: Update sessionStorage so the header updates instantly
+      sessionStorage.setItem('user_avatar', newAvatarUrl);
+      // Force re-render of components using this session data by navigating
+      window.dispatchEvent(new Event('storage'));
+    } catch (error) {
+      toast.error('Failed to update profile.');
+      console.error(error);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (!user) return <div>Could not load profile.</div>
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-      <main className="flex-grow container mx-auto py-12 px-4 md:px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center gap-6 mb-10">
-            <Avatar className="h-24 w-24">
-              <AvatarImage src="https://i.pravatar.cc/150" />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-3xl font-bold">Alex Doe</h1>
-              <p className="text-muted-foreground">Joined in 2024</p>
-            </div>
-          </div>
+      <main className="container mx-auto py-12 px-4">
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle>My Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="flex flex-col items-center space-y-4">
+                <Avatar className="h-32 w-32">
+                  <AvatarImage src={preview} alt={user.username} />
+                  <AvatarFallback>{user.username?.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <Label htmlFor="avatar-upload" className="cursor-pointer text-emerald-600 hover:underline">
+                  Change Photo
+                </Label>
+                <Input id="avatar-upload" type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
+              </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" defaultValue="Alex Doe" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue="alex@example.com" />
-                </div>
+              <div>
+                <Label>Username</Label>
+                <Input value={user.username} disabled />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="bio">About Me</Label>
-                <Textarea id="bio" placeholder="Tell us a little bit about yourself" defaultValue="I'm a software engineer who loves hiking, board games, and finding the best coffee shops in town. Looking for a clean and friendly living space!" />
+              <div>
+                <Label>Email</Label>
+                <Input value={user.email} disabled />
               </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline">Cancel</Button>
-                <Button className="bg-blue-600 hover:bg-blue-700">Save Changes</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+
+              <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">
+                Save Changes
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </main>
       <Footer />
     </div>

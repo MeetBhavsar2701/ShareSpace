@@ -1,123 +1,81 @@
-import { useState } from "react";
-import { Link } from "react-router-dom"; // Use from react-router-dom
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, Users, Search, Heart, Shield, Star, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { Users, Heart, Shield } from 'lucide-react';
 
-// Navigation Component (adapted from reference)
-function Navigation() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  return (
-    <nav className="bg-white border-b border-stone-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-                <Home className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-stone-800">Sharespace</span>
-            </Link>
-          </div>
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#how-it-works" className="text-stone-600 hover:text-emerald-600 transition-colors">How It Works</a>
-            <a href="#testimonials" className="text-stone-600 hover:text-emerald-600 transition-colors">Reviews</a>
-            <Link to="/login" className="text-stone-600 hover:text-emerald-600 transition-colors">Login</Link>
-            <Button asChild className="bg-emerald-500 hover:bg-emerald-600 text-white">
-              <Link to="/signup">Get Started</Link>
-            </Button>
-          </div>
-          <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
-          </div>
-        </div>
-      </div>
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-stone-200">
-          <div className="px-4 py-2 space-y-2">
-            <a href="#how-it-works" className="block py-2 text-stone-600">How It Works</a>
-            <a href="#testimonials" className="block py-2 text-stone-600">Reviews</a>
-            <Link to="/login" className="block py-2 text-stone-600">Login</Link>
-            <Button asChild className="w-full bg-emerald-500 hover:bg-emerald-600 text-white mt-2">
-              <Link to="/signup">Get Started</Link>
-            </Button>
-          </div>
-        </div>
-      )}
-    </nav>
-  );
-}
-
-// Main Landing Page Component
 export default function LandingPage() {
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
-
-  const testimonials = [
-    {
-      name: "Sarah Chen",
-      role: "Graduate Student",
-      content: "Found my perfect roommate in just 2 weeks! Our 95% compatibility score was spot on - we both love quiet study time and cooking together.",
-      rating: 5,
-    },
-    {
-      name: "Marcus Johnson",
-      role: "Software Engineer",
-      content: "The personality matching is incredible. I was matched with someone who shares my love for early morning workouts and clean living spaces.",
-      rating: 5,
-    },
-  ];
-
-  const nextTestimonial = () => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-  const prevTestimonial = () => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-
   return (
-    <div className="min-h-screen bg-stone-50">
-      <Navigation />
-      
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-emerald-50 to-stone-50 py-12 lg:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-center lg:text-left">
-              <h1 className="text-4xl lg:text-6xl font-bold text-stone-800 mb-6">
-                Find the right place. <span className="text-emerald-600">Share it with the right people.</span>
-              </h1>
-              <p className="text-xl text-stone-600 mb-8 max-w-2xl">
-                Connect with compatible roommates through personality-based matching. No more awkward living situations.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button asChild size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white text-lg px-8 py-3">
-                  <Link to="/listings"><Search className="w-5 h-5 mr-2" /> Find a Room</Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="text-lg px-8 py-3 border-emerald-500 text-emerald-600 hover:bg-emerald-50 bg-transparent">
-                  <Link to="/add-listing"><Home className="w-5 h-5 mr-2" /> Post a Listing</Link>
-                </Button>
-              </div>
+    <div className="flex flex-col min-h-screen bg-white text-stone-800">
+      <Header />
+      <main className="flex-grow">
+        {/* Hero Section */}
+        <section className="relative bg-gradient-to-br from-emerald-50 to-white pt-24 pb-32 text-center">
+            <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+            <div className="container mx-auto px-4 relative z-10">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                >
+                    <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-balance">
+                        Find the Right Place, <br />
+                        <span className="text-emerald-500">Share it with the Right People.</span>
+                    </h1>
+                    <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-stone-600 text-balance">
+                        ShareSpace uses smart matching to connect you with compatible people and amazing places. Your next chapter starts here.
+                    </p>
+                    <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+                        <Link to="/signup">
+                            <Button size="lg" className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white text-lg h-14 px-8">
+                                Get Started Free
+                            </Button>
+                        </Link>
+                        <Link to="/listings">
+                            <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg h-14 px-8 border-stone-300">
+                                Browse Listings
+                            </Button>
+                        </Link>
+                    </div>
+                </motion.div>
             </div>
-            {/* ... other sections ... */}
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="py-16 lg:py-24 bg-stone-100">
-        {/* ... content ... */}
-      </section>
-
-      {/* Testimonials */}
-      <section id="testimonials" className="py-16 lg:py-24 bg-white">
-        {/* ... content ... */}
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-stone-800 text-white py-12">
-        {/* ... content ... */}
-      </footer>
+        {/* How It Works Section */}
+        <section className="py-24 bg-white">
+            <div className="container mx-auto px-4">
+                <div className="text-center mb-16">
+                    <h2 className="text-4xl font-bold">How It Works</h2>
+                    <p className="text-lg text-stone-600 mt-4 max-w-2xl mx-auto text-balance">Find your ideal living situation in three simple steps.</p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-8">
+                    <div className="text-center p-8">
+                        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Users className="w-8 h-8 text-emerald-600" />
+                        </div>
+                        <h3 className="text-xl font-semibold mb-4">Take the Quiz</h3>
+                        <p className="text-stone-600 text-balance">Our in-depth personality and lifestyle quiz helps us understand what you’re looking for.</p>
+                    </div>
+                    <div className="text-center p-8">
+                        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Heart className="w-8 h-8 text-emerald-600" />
+                        </div>
+                        <h3 className="text-xl font-semibold mb-4">View Your Matches</h3>
+                        <p className="text-stone-600 text-balance">Browse a personalized list of roommates and rooms with high compatibility scores.</p>
+                    </div>
+                    <div className="text-center p-8">
+                        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Shield className="w-8 h-8 text-emerald-600" />
+                        </div>
+                        <h3 className="text-xl font-semibold mb-4">Connect Securely</h3>
+                        <p className="text-stone-600 text-balance">Chat with your matches, schedule viewings, and find your new home with confidence.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+      </main>
+      <Footer />
     </div>
   );
 }
