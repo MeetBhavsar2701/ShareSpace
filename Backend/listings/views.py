@@ -44,7 +44,7 @@ class PersonalizedListingListView(APIView):
         if max_rent:
             queryset = queryset.filter(rent__lte=max_rent)
 
-        show_filter = request.query_params.get('show', 'my_city' if user.is_authenticated and user.role == 'Seeker' else 'all')
+        show_filter = request.query_params.get('show', 'all')
         
         if user.is_authenticated and user.role == 'Seeker':
             if show_filter == 'my_city':

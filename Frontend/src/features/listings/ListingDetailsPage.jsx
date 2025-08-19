@@ -32,7 +32,11 @@ export default function ListingDetailsPage() {
   if (loading) return <div>Loading...</div>;
   if (!listing) return <div>Listing not found.</div>;
 
-  const allImages = [listing.image_url, ...listing.images.map(img => img.image_url)].filter(Boolean);
+  const allImages = [
+  listing.image_url || '/no-image.png',
+  ...listing.images.map(img => img.image_url || '/no-image.png')
+].filter(Boolean);
+
   const mapCenter = (listing.latitude && listing.longitude) ? [listing.latitude, listing.longitude] : null;
 
   return (
@@ -40,7 +44,6 @@ export default function ListingDetailsPage() {
       <Header />
       <main className="flex-grow container mx-auto py-12 px-4 md:px-6">
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">
             <div className="space-y-2">
                 <h1 className="text-3xl lg:text-4xl font-bold">{listing.title}</h1>
@@ -78,13 +81,12 @@ export default function ListingDetailsPage() {
               </div>
             )}
           </div>
-          {/* Right Column */}
           <div className="relative lg:col-span-1">
             <div className="sticky top-24 space-y-6">
               <Card className="shadow-lg">
                 <CardContent className="p-6">
                   <p className="text-3xl font-bold">
-                    ₹{listing.rent.toLocaleString('en-IN')}
+                    ₹{(listing.price || listing.rent).toLocaleString('en-IN')}  {/* FIX */}
                     <span className="text-lg font-normal text-muted-foreground">/month</span>
                   </p>
                   <Button size="lg" className="w-full mt-6 bg-emerald-500 hover:bg-emerald-600">
@@ -99,10 +101,10 @@ export default function ListingDetailsPage() {
                 <CardContent>
                    <div className="flex items-center gap-4">
                       <Avatar className="h-12 w-12">
-                        <AvatarFallback>{listing.lister_username.charAt(0).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>{listing.lister.username.charAt(0).toUpperCase()}</AvatarFallback> {/* FIX */}
                       </Avatar>
                       <div>
-                        <p className="font-semibold">{listing.lister_username}</p>
+                        <p className="font-semibold">{listing.lister.username}</p> {/* FIX */}
                         <p className="text-sm text-muted-foreground">Joined recently</p>
                       </div>
                     </div>

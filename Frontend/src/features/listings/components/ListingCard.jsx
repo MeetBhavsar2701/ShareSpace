@@ -3,36 +3,41 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, MapPin } from "lucide-react";
 
 export function ListingCard({ listing }) {
-  // FIX: Use the 'image_url' field provided by the updated backend serializer
-  const displayImage = listing.image_url || 'https://via.placeholder.com/300?text=No+Image';
+  // Use image_url from backend, fallback to local image in public folder
+  const displayImage = listing.image_url || '/no-image.png';
 
   return (
     <div className="group relative">
       <Link to={`/listings/${listing.id}`}>
         <div className="rounded-xl overflow-hidden aspect-square">
-            <img
-              src={displayImage}
-              alt={listing.title}
-              className="aspect-square w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+          <img
+            src={displayImage}
+            alt={listing.title}
+            className="aspect-square w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => { e.target.onerror = null; e.target.src = '/no-image.png'; }}
+          />
         </div>
 
         <div className="mt-3">
           <div className="flex justify-between items-start">
-            <h3 className="font-semibold text-lg leading-tight truncate pr-2">{listing.title}</h3>
+            <h3 className="font-semibold text-lg leading-tight truncate pr-2">
+              {listing.title}
+            </h3>
             <Badge variant="secondary" className="font-bold text-md flex-shrink-0">
-              ₹{listing.rent.toLocaleString('en-IN')}
+              ₹{listing.rent?.toLocaleString('en-IN') || 'N/A'}
             </Badge>
           </div>
           <div className="flex items-center text-sm text-gray-600 mt-1">
             <MapPin className="w-4 h-4 mr-1.5" />
-            <span>{listing.city}</span>
+            <span>{listing.city || 'Unknown City'}</span>
           </div>
         </div>
       </Link>
+
       <button className="absolute top-3 right-3 p-2 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white">
         <Heart className="w-5 h-5 text-gray-700" />
       </button>
     </div>
   );
 }
+

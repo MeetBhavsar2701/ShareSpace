@@ -4,7 +4,14 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ListingCard } from "@/features/listings/components/ListingCard";
 
-const mockListing = { id: 1, title: 'Sunny Downtown Loft', location: 'Urban Core, Metro City', price: 1200, match: 92, image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2' };
+const mockListing = {
+  id: 1,
+  title: "Sunny Downtown Loft",
+  location: "Urban Core, Metro City",
+  price: 1200,
+  match: 92,
+  image: "/no-image.png", // Use local image instead of via.placeholder.com
+};
 
 export default function DashboardPage() {
   return (
@@ -27,13 +34,12 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <ListingCard listing={mockListing} />
-                {/* Add more listed properties here */}
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="matches" className="mt-6">
-             <Card>
+            <Card>
               <CardHeader>
                 <CardTitle>Your Top Matches</CardTitle>
               </CardHeader>
@@ -43,8 +49,8 @@ export default function DashboardPage() {
             </Card>
           </TabsContent>
 
-           <TabsContent value="messages" className="mt-6">
-             <Card>
+          <TabsContent value="messages" className="mt-6">
+            <Card>
               <CardHeader>
                 <CardTitle>Your Conversations</CardTitle>
               </CardHeader>
@@ -53,14 +59,14 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="saved" className="mt-6">
             <Card>
               <CardHeader>
                 <CardTitle>Your Saved Listings</CardTitle>
               </CardHeader>
               <CardContent className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                 <ListingCard listing={mockListing} />
+                <ListingCard listing={mockListing} />
               </CardContent>
             </Card>
           </TabsContent>

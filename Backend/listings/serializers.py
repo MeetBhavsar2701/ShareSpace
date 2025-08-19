@@ -12,9 +12,12 @@ class ListingImageSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         try:
-            return obj.image.url if obj.image else ''
+            request = self.context.get('request')
+            if obj.image and request:
+                return request.build_absolute_uri(obj.image.url)
+            return None
         except Exception:
-            return ''
+            return None
 
 class ListingSerializer(serializers.ModelSerializer):
     lister = UserSerializer(read_only=True)
@@ -30,27 +33,33 @@ class ListingSerializer(serializers.ModelSerializer):
     current_roommates = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=CustomUser.objects.all(),
-        write_only=True, # Only for input
+        write_only=True,
         required=False
     )
     current_roommates_details = UserSerializer(many=True, read_only=True, source='current_roommates')
-
+    price = serializers.SerializerMethodField()  # ADDED
 
     class Meta:
         model = Listing
         fields = [
-            'id', 'title', 'address', 'description', 'city', 'rent',
+            'id', 'title', 'address', 'description', 'city', 'rent', 'price',
             'pets_allowed', 'smoking_allowed', 'lister', 'created_at',
             'latitude', 'longitude', 'image_url', 'images', 'images_data',
             'compatibility_score', 'roommates_needed', 'roommates_found',
-            'current_roommates', 'current_roommates_details' ,'is_favorited'
+            'current_roommates', 'current_roommates_details', 'is_favorited'
         ]
 
     def get_image_url(self, obj):
         try:
-            return obj.image.url if obj.image else None
+            request = self.context.get('request')
+            if obj.image and request:
+                return request.build_absolute_uri(obj.image.url)
+            return None
         except Exception:
             return None
+
+    def get_price(self, obj):
+        return obj.rent if obj.rent is not None else 0  # ADDED
 
     def create(self, validated_data):
         images_data = validated_data.pop('images_data', None)
