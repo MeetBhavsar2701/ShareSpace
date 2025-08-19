@@ -8,7 +8,7 @@ const mockListing = {
   id: 1,
   title: "Sunny Downtown Loft",
   location: "Urban Core, Metro City",
-  price: 1200,
+  rent: 1200,
   match: 92,
   image: "/no-image.png", // Use local image instead of via.placeholder.com
 };

@@ -70,7 +70,7 @@ class PersonalizedListingListView(APIView):
                         
                         for listing in queryset:
                             score = lister_scores.get(listing.lister.id, 0)
-                            listing.compatibility_score = min(99, int(round(score * 100)))
+                            listing.compatibility_score = min(99, int(round(score)))
                         
                         if show_filter == 'top_matches':
                             queryset = [l for l in queryset if l.compatibility_score >= 70]
@@ -80,7 +80,6 @@ class PersonalizedListingListView(APIView):
                     except Exception as e:
                         pass
         
-        # --- FIX: Pass request context to the serializer ---
         serializer = ListingSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -89,7 +88,6 @@ class ListingListView(generics.ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = ListingSerializer
 
-    # --- FIX: Ensure request context is passed to the serializer ---
     def get_serializer_context(self):
         return {'request': self.request}
 
@@ -99,7 +97,6 @@ class ListingDetailView(generics.RetrieveAPIView):
     lookup_field = 'id'
     serializer_class = ListingSerializer
 
-    # --- FIX: Ensure request context is passed to the serializer ---
     def get_serializer_context(self):
         return {'request': self.request}
 
@@ -118,7 +115,6 @@ class MyListingsView(generics.ListAPIView):
     def get_queryset(self):
         return Listing.objects.filter(lister=self.request.user).order_by('-created_at')
     
-    # --- FIX: Ensure request context is passed to the serializer ---
     def get_serializer_context(self):
         return {'request': self.request}
 

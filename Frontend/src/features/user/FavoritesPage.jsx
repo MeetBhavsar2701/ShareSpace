@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "@/api";
+import api from "@/api";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ListingCard } from "@/features/listings/components/ListingCard";

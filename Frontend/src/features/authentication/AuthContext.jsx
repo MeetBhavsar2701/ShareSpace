@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { api } from "../../api"; // adjust path if needed
+import api from "../../api"; // adjust path if needed
 
 // ✅ Context with safe defaults (no destructuring errors)
 const AuthContext = createContext({
