@@ -25,7 +25,6 @@ function App() {
           {/* Routes that use the main layout */}
           <Route element={<MainLayout />}>
             <Route path="/listings" element={<ListingsPage />} />
-            <Route path="/listings/new" element={<AddListingPage />} />
             <Route path="/listings/:id" element={<ListingDetailsPage />} />
             <Route path="/listings/:id/edit" element={<EditListingPage />} />
             <Route path="/profile" element={<ProfilePage />} />
@@ -35,6 +34,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/help" element={<HelpCenterPage />} />
+            <Route path="/add-listing"element={<AddListingPage />}/>
           </Route>
           
           {/* Standalone routes without the main layout */}

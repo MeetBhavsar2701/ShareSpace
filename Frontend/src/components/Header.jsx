@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Home, User, LogOut, LayoutGrid, Plus, Menu, X, Bell } from 'lucide-react';
+import { Home, User, LogOut, LayoutGrid, Plus, Menu, X, Bell, Heart } from 'lucide-react';
 
 export function Header() {
   const navigate = useNavigate();
@@ -36,18 +36,14 @@ export function Header() {
 
   useEffect(() => {
     updateUserState();
-
     const handleUpdate = () => updateUserState();
-
     window.addEventListener('storage', handleUpdate);
     window.addEventListener('profileUpdated', handleUpdate);
-
     return () => {
       window.removeEventListener('storage', handleUpdate);
       window.removeEventListener('profileUpdated', handleUpdate);
     };
   }, []);
-
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -59,6 +55,9 @@ export function Header() {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const LoggedInNav = ({ isMobile }) => {
+    // Log the user role to help debug
+    console.log("Current user role:", user.role); 
+
     if (isMobile) {
       return (
         <>
@@ -71,6 +70,9 @@ export function Header() {
           <Link to="/profile" onClick={closeMobileMenu}>
             <Button variant="ghost" className="w-full justify-start"><User className="mr-2 h-4 w-4" />Profile</Button>
           </Link>
+  
+          
+          {/* --- THIS IS THE CORRECT LOGIC FOR MOBILE --- */}
           {user.role === 'Lister' && (
             <Link to="/add-listing" onClick={closeMobileMenu}>
               <Button className="w-full justify-start bg-emerald-50 hover:bg-emerald-100 text-emerald-700">
@@ -78,6 +80,7 @@ export function Header() {
               </Button>
             </Link>
           )}
+
           <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50">
             <LogOut className="mr-2 h-4 w-4" />Log out
           </Button>
@@ -95,6 +98,8 @@ export function Header() {
             <Bell className="h-5 w-5" />
           </Button>
         </Link>
+
+        {/* --- THIS IS THE CORRECT LOGIC FOR DESKTOP --- */}
         {user.role === 'Lister' && (
           <Link to="/add-listing">
             <Button className="bg-emerald-500 hover:bg-emerald-600">
@@ -102,6 +107,7 @@ export function Header() {
             </Button>
           </Link>
         )}
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
