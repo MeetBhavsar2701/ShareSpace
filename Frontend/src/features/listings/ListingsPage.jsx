@@ -78,7 +78,6 @@ export default function ListingsPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-50">
-            <Header />
             <main className="flex-grow container mx-auto py-8 px-4">
                 <div className="lg:grid lg:grid-cols-4 lg:gap-8">
                     <aside className="hidden lg:block lg:col-span-1">
@@ -135,7 +134,6 @@ export default function ListingsPage() {
                     </div>
                 </div>
             </main>
-            <Footer />
         </div>
     );
 }

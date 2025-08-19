@@ -52,7 +52,6 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
       <main className="flex-grow container mx-auto py-12 px-4 md:px-6">
         <h1 className="text-3xl font-bold mb-8">My Sharespace</h1>
         <Tabs defaultValue="matches" className="w-full">
@@ -126,7 +125,6 @@ export default function DashboardPage() {
           </TabsContent>
         </Tabs>
       </main>
-      <Footer />
     </div>
   );
 }

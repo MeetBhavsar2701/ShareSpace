@@ -1,12 +1,19 @@
 import axios from "axios";
 import { toast } from "sonner";
 
+const baseURL = "http://127.0.0.1:8000/api";
+
+// For authenticated requests
 const api = axios.create({
-  // --- THIS IS THE FIX ---
-  baseURL: "http://127.0.0.1:8000/api", 
+  baseURL,
 });
 
-// Interceptor to add the token to every request
+// For public requests that don't need authentication
+export const publicApi = axios.create({
+  baseURL,
+});
+
+// Interceptor to add the token to every request for the authenticated instance
 api.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem("access_token");
@@ -18,14 +25,12 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor to handle expired tokens
+// Interceptor to handle expired tokens for the authenticated instance
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // --- ADD A CHECK FOR error.response ---
-    // This prevents the TypeError on network errors
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -36,7 +41,8 @@ api.interceptors.response.use(
           return Promise.reject(error);
         }
 
-        const response = await axios.post('http://127.0.0.1:8000/api/users/token/refresh/', {
+        // Use the publicApi instance to refresh the token
+        const response = await publicApi.post('/users/token/refresh/', {
           refresh: refreshToken,
         });
 
@@ -59,7 +65,6 @@ api.interceptors.response.use(
       }
     }
 
-    // If it's not a 401 or if there's no response (network error), reject the promise
     return Promise.reject(error);
   }
 );

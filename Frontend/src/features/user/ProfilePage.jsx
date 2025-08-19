@@ -71,7 +71,6 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
       <main className="container mx-auto py-12 px-4">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
@@ -106,7 +105,6 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       </main>
-      <Footer />
     </div>
   );
 }
