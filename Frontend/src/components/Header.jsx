@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Home, User, LogOut, LayoutGrid, Plus, Menu, X, Bell, Heart } from 'lucide-react';
+import { Home, User, LogOut, LayoutGrid, Plus, Menu, X, Bell } from 'lucide-react';
 
 export function Header() {
   const navigate = useNavigate();
@@ -123,10 +123,6 @@ export function Header() {
             <DropdownMenuItem onSelect={() => navigate('/dashboard')} className="cursor-pointer">
               <LayoutGrid className="mr-2 h-4 w-4" />
               <span>Dashboard</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => navigate('/favorites')} className="cursor-pointer">
-              <Heart className="mr-2 h-4 w-4" />
-              <span>Saved Listings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer text-red-500 focus:bg-red-50 focus:text-red-600">
