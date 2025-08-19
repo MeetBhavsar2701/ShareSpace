@@ -26,11 +26,18 @@ export default function LoginPage() {
       });
 
       if (response.status === 200) {
-        // Store both the access and the new refresh token
+        // --- START: THE FIX IS HERE ---
+        // Store all user data returned from the API
         sessionStorage.setItem("access_token", response.data.access);
         sessionStorage.setItem("refresh_token", response.data.refresh);
         sessionStorage.setItem("user_id", response.data.user_id);
         sessionStorage.setItem("username", response.data.username);
+        sessionStorage.setItem("avatar_url", response.data.avatar_url); // This was missing
+        sessionStorage.setItem("role", response.data.role);             // This was missing
+        
+        // Dispatch event to update components like the Header immediately
+        window.dispatchEvent(new Event("profileUpdated"));
+        // --- END: THE FIX IS HERE ---
         
         navigate("/listings");
       }

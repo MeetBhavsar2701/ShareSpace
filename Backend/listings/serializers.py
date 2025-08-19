@@ -11,83 +11,61 @@ class ListingImageSerializer(serializers.ModelSerializer):
         fields = ("image_url",)
 
     def get_image_url(self, obj):
-        try:
-            return obj.image.url if obj.image else ""
-        except Exception:
-            return ""
+        return obj.image.url if obj.image else ""
 
 class ListingSerializer(serializers.ModelSerializer):
-    lister = UserSerializer(read_only=True)
+    # For handling multiple image uploads in one request
     images_data = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True,
-        required=False,
+        required=False
     )
-    images = ListingImageSerializer(many=True, read_only=True)
-    image_url = serializers.SerializerMethodField()
-    compatibility_score = serializers.SerializerMethodField()
-    is_favorited = serializers.SerializerMethodField()
+    # For accepting a list of roommate IDs when creating a listing
     current_roommates = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=CustomUser.objects.all(),
         write_only=True,
-        required=False,
+        required=False
     )
+    # For displaying roommate details when reading a listing
     current_roommates_details = UserSerializer(
         many=True, read_only=True, source="current_roommates"
     )
+    # Other read-only fields for displaying data
+    lister = UserSerializer(read_only=True)
+    images = ListingImageSerializer(many=True, read_only=True)
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Listing
         fields = [
-            "id",
-            "title",
-            "address",
-            "description",
-            "city",
-            "rent",
-            "pets_allowed",
-            "smoking_allowed",
-            "lister",
-            "created_at",
-            "latitude",
-            "longitude",
-            "image_url",
-            "images",
-            "images_data",
-            "compatibility_score",
-            "roommates_needed",
-            "roommates_found",
-            "current_roommates",
-            "current_roommates_details",
-            "is_favorited",
+            "id", "title", "address", "description", "city", "rent",
+            "pets_allowed", "smoking_allowed", "lister", "created_at",
+            "latitude", "longitude", "image_url", "images", "images_data",
+            "roommates_needed", "current_roommates", "current_roommates_details",
         ]
 
     def get_image_url(self, obj):
-        try:
-            return obj.image.url if obj.image else None
-        except Exception:
-            return None
+        return obj.image.url if obj.image else None
 
-    def get_compatibility_score(self, obj):
-        return getattr(obj, "compatibility_score", None)
-
-    def get_is_favorited(self, obj):
-        request = self.context.get("request")
-        user = getattr(request, "user", None)
-        if user and user.is_authenticated:
-            return user.favorites.filter(id=obj.id).exists()
-        return False
-
+    # This custom create method handles the complex logic of saving a listing
     def create(self, validated_data):
-        images_data = validated_data.pop("images_data", None)
+        # Pop the image and roommate data from the validated data
+        images_data = validated_data.pop("images_data", [])
         current_roommates_data = validated_data.pop("current_roommates", [])
+        
+        # Create the main Listing object
         listing = Listing.objects.create(**validated_data)
+
+        # Set the roommate relationships
         if current_roommates_data:
             listing.current_roommates.set(current_roommates_data)
+
+        # Set the cover image and create additional ListingImage objects
         if images_data:
-            listing.image = images_data[0]
+            listing.image = images_data[0] # First image is the cover
             listing.save()
-            for image_data in images_data:
-                ListingImage.objects.create(listing=listing, image=image_data)
+            for image_file in images_data:
+                ListingImage.objects.create(listing=listing, image=image_file)
+
         return listing

@@ -9,7 +9,7 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('matches/', MatchesView.as_view(), name='user-matches'),
     path('search/', UserSearchView.as_view(), name='user-search'),
-     path('favorites/toggle/', ToggleFavoriteView.as_view(), name='toggle-favorite'),
+    path('favorites/toggle/', ToggleFavoriteView.as_view(), name='toggle-favorite'),
     path('favorites/', FavoriteListingsView.as_view(), name='favorite-listings'),
     path('<uuid:id>/', PublicProfileView.as_view(), name='public-profile-detail'),
 ]

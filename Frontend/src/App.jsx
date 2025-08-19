@@ -6,7 +6,6 @@ import SignupPage from "./features/authentication/SignupPage";
 import OnboardingPage from "./features/onboarding/OnboardingPage";
 import ListingsPage from "./features/listings/ListingsPage";
 import ListingDetailsPage from "./features/listings/ListingDetailsPage";
-import AddListingPage from "./features/listings/AddListingPage";
 import EditListingPage from "./features/listings/EditListingPage";
 import ProfilePage from "./features/user/ProfilePage";
 import PublicProfilePage from "./features/user/PublicProfilePage";
@@ -16,6 +15,7 @@ import DashboardPage from "./features/user/DashboardPage";
 import MessagesPage from "./features/chat/MessagesPage";
 import LandingPage from "./features/LandingPage";
 import HelpCenterPage from "./features/info/HelpCenterPage";
+import AddListingPage from "@/features/listings/AddListingPage";
 
 function App() {
   return (
@@ -35,6 +35,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/help" element={<HelpCenterPage />} />
+            <Route path="/add-listing"element={<AddListingPage />}/>
           </Route>
           
           {/* Standalone routes without the main layout */}

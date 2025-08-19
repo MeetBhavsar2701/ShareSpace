@@ -5,9 +5,9 @@ from cloudinary.models import CloudinaryField
 
 class Listing(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # The user who created the listing
     lister = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    # --- NEW FIELD ---
-    # Add a relationship to users who are current roommates.
+    # Other users who already live at the property
     current_roommates = models.ManyToManyField(CustomUser, related_name="current_listings", blank=True)
     
     title = models.CharField(max_length=200)
@@ -17,20 +17,25 @@ class Listing(models.Model):
     rent = models.PositiveIntegerField()
     
     roommates_needed = models.PositiveIntegerField(default=1)
-    roommates_found = models.PositiveIntegerField(default=0) 
-
+    
+    # House Rules
     pets_allowed = models.BooleanField(default=False)
     smoking_allowed = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # Location
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
 
+    # The primary "cover" image for the listing
     image = CloudinaryField('image', blank=True, null=True)
+    
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
 
+# A separate model to handle multiple images for one listing
 class ListingImage(models.Model):
     listing = models.ForeignKey(Listing, related_name='images', on_delete=models.CASCADE)
     image = CloudinaryField('image')

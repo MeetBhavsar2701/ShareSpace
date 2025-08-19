@@ -2,7 +2,7 @@ import pandas as pd
 import joblib
 from django.conf import settings
 from django.contrib.auth import authenticate
-from rest_framework import generics, status
+from rest_framework import generics, status,permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,7 +11,7 @@ from django.db.models import Q
 from listings.models import Listing
 from listings.serializers import ListingSerializer
 from .models import CustomUser
-from .serializers import LoginSerializer, ProfileUpdateSerializer, UserSerializer
+from .serializers import LoginSerializer, ProfileUpdateSerializer, UserSerializer,UserSearchSerializer
 
 class PublicProfileView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
@@ -73,20 +73,6 @@ class ProfileUpdateView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
-
-# --- ADD THIS NEW VIEW ---
-class UserSearchView(generics.ListAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        query = self.request.query_params.get('query', '')
-        if query:
-            # Search by username or email, exclude the current user, and limit to 10 results
-            return CustomUser.objects.filter(
-                Q(username__icontains=query) | Q(email__icontains=query)
-            ).exclude(id=self.request.user.id)[:10]
-        return CustomUser.objects.none()
 
 class MatchesView(APIView):
     permission_classes = [IsAuthenticated]
@@ -189,3 +175,24 @@ class FavoriteListingsView(generics.ListAPIView):
 
     def get_queryset(self):
         return self.request.user.favorites.all()
+    
+class UserSearchView(generics.ListAPIView):
+    """
+    Provides a search endpoint for users by username.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSearchSerializer
+
+    def get_queryset(self):
+        queryset = CustomUser.objects.all()
+        # The frontend uses 'q' for the query parameter
+        username_query = self.request.query_params.get('q', None)
+        if username_query is not None:
+            # Exclude the current user from search results
+            queryset = queryset.filter(username__icontains=username_query).exclude(id=self.request.user.id)
+        return queryset
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context

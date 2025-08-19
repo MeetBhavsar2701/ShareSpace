@@ -52,3 +52,20 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         
     def get_avatar_url(self, obj):
         return obj.avatar.url if obj.avatar else None
+    
+class UserSearchSerializer(serializers.ModelSerializer):
+    """
+    Serializer for returning user search results.
+    Includes logic to correctly build the full avatar URL.
+    """
+    avatar_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'avatar_url']
+
+    def get_avatar_url(self, obj):
+        request = self.context.get('request')
+        if obj.avatar and hasattr(obj.avatar, 'url'):
+            return request.build_absolute_uri(obj.avatar.url)
+        return None
