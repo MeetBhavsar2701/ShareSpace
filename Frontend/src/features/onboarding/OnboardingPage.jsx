@@ -54,7 +54,7 @@ const steps = [
       { id: 'has_pets', text: "Do you have any pets?", type: 'radio', options: ["Yes", "No"] },
       { id: 'gender_preference', text: "You're comfortable living with:", type: 'radio', options: ["Males", "Females", "No Preference"] },
       { id: 'city', text: "Which city are you looking in?", type: 'text', placeholder: "e.g., Metro City" },
-      { id: 'budget', text: "What is your monthly budget ($)?", type: 'number', placeholder: "e.g., 1200" },
+      { id: 'budget', text: "What is your monthly budget (₹)?", type: 'number', placeholder: "e.g., 1200" },
     ]
   },
   {
