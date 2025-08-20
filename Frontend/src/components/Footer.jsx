@@ -5,8 +5,8 @@ export function Footer() {
         <p>&copy; {new Date().getFullYear()} Sharespace, Inc. All rights reserved.</p>
         <div className="flex gap-4 mt-4 md:mt-0">
           <a href="/help" className="hover:text-primary">Help Center</a>
-          <a href="#" className="hover:text-primary">Terms of Service</a>
-          <a href="#" className="hover:text-primary">Privacy Policy</a>
+          <a href="/terms-of-service" className="hover:text-primary">Terms of Service</a>
+          <a href="/privacy-policy" className="hover:text-primary">Privacy Policy</a>
         </div>
       </div>
     </footer>

@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./features/authentication/AuthContext";
-import MainLayout from "./components/MainLayout"; // Import the layout
+import { MainLayout } from "./components/MainLayout";
 import LoginPage from "./features/authentication/LoginPage";
 import SignupPage from "./features/authentication/SignupPage";
 import OnboardingPage from "./features/onboarding/OnboardingPage";
@@ -16,6 +16,8 @@ import DashboardPage from "./features/user/DashboardPage";
 import MessagesPage from "./features/chat/MessagesPage";
 import LandingPage from "./features/LandingPage";
 import HelpCenterPage from "./features/info/HelpCenterPage";
+import TermsOfServicePage from "./features/info/TermsOfServicePage";
+import PrivacyPolicyPage from "./features/info/PrivacyPolicyPage";
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/help" element={<HelpCenterPage />} />
             <Route path="/add-listing"element={<AddListingPage />}/>
+            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           </Route>
           
           {/* Standalone routes without the main layout */}
