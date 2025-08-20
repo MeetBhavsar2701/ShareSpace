@@ -32,6 +32,7 @@ export default function LoginPage() {
         sessionStorage.setItem("user_id", response.data.user_id);
         sessionStorage.setItem("username", response.data.username);
         sessionStorage.setItem("role", response.data.role);
+        sessionStorage.setItem("avatar_url", response.data.avatar_url);
         localStorage.setItem("role", response.data.role);
         
         navigate("/listings");

@@ -112,7 +112,7 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                 <Avatar className={`${user.avatar ? "border-2 border-emerald-500" : ""} w-10 h-10`}>
-                  <AvatarImage src={user.avatar} alt={user.username} />
+                  <AvatarImage src={user.avatar || ''} alt={user.username} />
                   <AvatarFallback className="text-sm font-medium">
                     {user.username?.charAt(0).toUpperCase()}
                   </AvatarFallback>

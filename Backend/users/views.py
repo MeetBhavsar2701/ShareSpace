@@ -19,6 +19,12 @@ class PublicProfileView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
     lookup_field = 'id'
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     permission_classes = (AllowAny,)
@@ -34,7 +40,7 @@ class RegisterView(generics.CreateAPIView):
             'access': str(refresh.access_token),
             'user_id': user.id,
             'username': user.username,
-            'avatar_url': UserSerializer(user).data.get('avatar_url'),
+            'avatar_url': UserSerializer(user, context={'request': request}).data.get('avatar_url'),
             'user_city': user.city,
             'role': user.role,
         }, status=status.HTTP_201_CREATED)
@@ -55,7 +61,7 @@ class LoginView(generics.GenericAPIView):
                 'access': str(refresh.access_token),
                 'user_id': user.id,
                 'username': user.username,
-                'avatar_url': UserSerializer(user).data.get('avatar_url'),
+                'avatar_url': UserSerializer(user, context={'request': request}).data.get('avatar_url'),
                 'user_city': user.city,
                 'role': user.role,
             })
@@ -73,6 +79,11 @@ class ProfileUpdateView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
 
 # --- FIX: Changed 'query' to 'q' to match frontend ---
 class UserSearchView(generics.ListAPIView):
@@ -88,6 +99,10 @@ class UserSearchView(generics.ListAPIView):
             ).exclude(id=self.request.user.id)[:10]
         return CustomUser.objects.none()
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
 class MatchesView(APIView):
     permission_classes = [IsAuthenticated]
     

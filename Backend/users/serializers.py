@@ -29,7 +29,10 @@ class UserSerializer(serializers.ModelSerializer):
         }
         
     def get_avatar_url(self, obj):
-        return obj.avatar.url if obj.avatar else None
+        # CloudinaryField's .url attribute already provides the full absolute URL.
+        if obj.avatar:
+            return obj.avatar.url
+        return None
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(**validated_data)
@@ -51,4 +54,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         )
         
     def get_avatar_url(self, obj):
-        return obj.avatar.url if obj.avatar else None
+    # CloudinaryField's .url attribute already provides the full absolute URL.
+        if obj.avatar:
+            return obj.avatar.url
+        return None
