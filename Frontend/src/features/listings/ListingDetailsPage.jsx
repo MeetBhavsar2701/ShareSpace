@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MapPin, Home, Users, BedDouble, Cigarette, PawPrint, MessageSquare, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const InfoBadge = ({ icon, text }) => (
   <div className="flex items-center gap-3 p-4 bg-gray-100 rounded-lg shadow-sm">
@@ -21,6 +22,7 @@ export default function ListingDetailsPage() {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const userRole = sessionStorage.getItem('role');
+  const currentUserId = sessionStorage.getItem('user_id');
 
   useEffect(() => {
     const fetchListingDetails = async () => {
@@ -192,22 +194,38 @@ export default function ListingDetailsPage() {
                     className="block group"
                   >
                     <Card className="transition-all duration-300 group-hover:shadow-md group-hover:border-emerald-500">
-                      <CardContent className="p-4 flex items-center gap-4">
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={roommate.avatar_url} />
-                          <AvatarFallback>
-                            {roommate.username.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-bold text-md">
-                            {roommate.username}
-                            {roommate.id === listing.lister.id && " (Lister)"}
-                          </h3>
-                          <p className="text-muted-foreground text-sm">
-                            {roommate.occupation}
-                          </p>
+                      <CardContent className="p-4 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <Avatar className="h-12 w-12">
+                              <AvatarImage src={roommate.avatar_url} />
+                              <AvatarFallback>
+                                {roommate.username.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h3 className="font-bold text-md">
+                                {roommate.username}
+                                {roommate.id === listing.lister.id && " (Lister)"}
+                              </h3>
+                              <p className="text-muted-foreground text-sm">
+                                {roommate.occupation}
+                              </p>
+                            </div>
                         </div>
+                         {userRole === 'Seeker' && (
+                             roommate.id === currentUserId ? (
+                                <Badge className="bg-gray-500 text-white font-bold flex items-center gap-1.5 py-1 px-2.5 shadow-lg">
+                                    You
+                                </Badge>
+                             ) : (
+                                roommate.compatibility_score !== null && roommate.compatibility_score !== undefined && (
+                                   <Badge className="bg-emerald-500 text-white font-bold flex items-center gap-1.5 py-1 px-2.5 shadow-lg">
+                                       <Sparkles className="w-4 h-4" />
+                                       {roommate.compatibility_score}%
+                                   </Badge>
+                                )
+                             )
+                         )}
                       </CardContent>
                     </Card>
                   </Link>

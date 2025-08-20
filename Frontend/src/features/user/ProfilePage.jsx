@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Loader2, Info } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
+import { Textarea } from '@/components/ui/textarea'; // ADD THIS LINE
 
 const mbtiTypes = [
   { value: 'INTJ', description: 'Imaginative and strategic thinkers, with a plan for everything.' },
@@ -43,6 +44,7 @@ export default function ProfilePage() {
     first_name: '',
     last_name: '',
     email: '',
+    bio: '',
     city: '',
     cleanliness: 3,
     sleep_schedule: 'Flexible',
@@ -67,6 +69,7 @@ export default function ProfilePage() {
             first_name: response.data.first_name || '',
             last_name: response.data.last_name || '',
             email: response.data.email || '',
+            bio: response.data.bio || '',
             city: response.data.city || '',
             cleanliness: response.data.cleanliness || 3,
             sleep_schedule: response.data.sleep_schedule || 'Flexible',
@@ -246,6 +249,17 @@ export default function ProfilePage() {
                             </SelectContent>
                         </Select>
                     </div>
+                </div>
+                {/* --- Add this new field for the bio --- */}
+                <div className="space-y-2">
+                    <Label htmlFor="bio" className="text-lg font-semibold">About Me</Label>
+                    <Textarea 
+                        id="bio" 
+                        name="bio" 
+                        value={formData.bio}
+                        onChange={handleFormChange}
+                        placeholder="Tell us a little about yourself, your hobbies, and what you're looking for in a roommate..." 
+                    />
                 </div>
               </div>
 

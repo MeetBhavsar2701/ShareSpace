@@ -96,13 +96,14 @@ class UserSearchView(generics.ListAPIView):
             # Search by username or email, exclude the current user, and limit to 10 results
             return CustomUser.objects.filter(
                 Q(username__icontains=query) | Q(email__icontains=query)
-            ).exclude(id=self.request.user.id)[:10]
+            ).exclude(id=self.request.user.id).exclude(role='Lister').exclude(current_listings__isnull=False)[:10]
         return CustomUser.objects.none()
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({"request": self.request})
         return context
+    
 class MatchesView(APIView):
     permission_classes = [IsAuthenticated]
     

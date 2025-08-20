@@ -13,6 +13,7 @@ import { MapPicker } from "./components/MapPicker";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { X, UserPlus, Search } from "lucide-react";
 import { CustomModal } from "@/components/CustomModal";
+import { Toaster } from 'sonner';
 
 export default function EditListingPage() {
   const { id } = useParams();
@@ -153,11 +154,6 @@ export default function EditListingPage() {
       submissionData.append('images_data', file);
     });
 
-    if (imageFiles.length === 0 && existingImages.length === 0) {
-      toast.error("Please ensure there is at least one photo.");
-      return;
-    }
-
     try {
       await api.patch(`/listings/${id}/update/`, submissionData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -176,6 +172,7 @@ export default function EditListingPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
+      <Toaster richColors position="top-center" />
       <main className="flex-grow container mx-auto py-12 px-4">
         <Card className="max-w-3xl mx-auto shadow-lg">
           <CardHeader>
@@ -282,7 +279,31 @@ export default function EditListingPage() {
       </main>
 
       <CustomModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add a Roommate">
-          {/* ... same as AddListingPage ... */}
+           <div className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by username..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <div className="max-h-60 overflow-y-auto">
+            {loadingSearch && <p className="p-2 text-sm text-center">Searching...</p>}
+            {!loadingSearch && searchQuery.length > 1 && searchResults.length === 0 && <p className="p-2 text-sm text-center">No users found.</p>}
+            {searchResults.map(user => (
+              <div
+                key={user.id}
+                className="flex items-center gap-3 p-2 hover:bg-gray-100 cursor-pointer rounded-md"
+                onClick={() => addRoommate(user)}
+              >
+                <Avatar className="w-8 h-8"><AvatarImage src={user.avatar_url} /><AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback></Avatar>
+                <span className="font-medium">{user.username}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </CustomModal>
     </div>
   );

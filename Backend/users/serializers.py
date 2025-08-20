@@ -13,7 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
     Handles new user registration and fetching user data.
     """
     avatar_url = serializers.SerializerMethodField()
-    
+    compatibility_score = serializers.IntegerField(read_only=True, required=False)
+
     class Meta:
         model = CustomUser
         # 'budget' has been removed from initial signup for a better user flow.
@@ -21,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'password', 'first_name', 'last_name', 'role', 'avatar_url',
             'city', 'cleanliness', 'sleep_schedule', 'noise_level', 'guest_frequency', 
             'social_level', 'smoking', 'has_pets', 'gender_preference', 
-            'work_schedule', 'occupation', 'mbti_type'
+            'work_schedule', 'occupation', 'mbti_type','compatibility_score','bio'
         )
         extra_kwargs = {
             'password': {'write_only': True},
@@ -50,7 +51,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             'first_name', 'last_name', 'email', 'avatar', 'avatar_url', 'city',
             'cleanliness', 'sleep_schedule', 'noise_level', 'guest_frequency',
             'social_level', 'smoking', 'has_pets', 'gender_preference',
-            'work_schedule', 'occupation', 'mbti_type', 'budget'
+            'work_schedule', 'occupation', 'mbti_type', 'budget','bio'
         )
         
     def get_avatar_url(self, obj):

@@ -11,8 +11,8 @@ class CustomUser(AbstractUser):
     role = models.CharField(max_length=10, choices=[('Seeker', 'Seeker'), ('Lister', 'Lister')], default='Seeker')
     city = models.CharField(max_length=100, blank=True, null=True)
     avatar = CloudinaryField('avatar', blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
 
-    # --- FIX: Use a string reference to avoid circular import ---
     favorites = models.ManyToManyField('listings.Listing', related_name="favorited_by", blank=True)
 
     # Lifestyle and Matching Attributes

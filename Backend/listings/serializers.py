@@ -102,3 +102,31 @@ class ListingSerializer(serializers.ModelSerializer):
             return obj.favorites_count
         # Fallback for other views where the annotation might not be present
         return obj.favorited_by.count()
+    
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop("images_data", None)
+        current_roommates_data = validated_data.pop("current_roommates", [])
+
+        # Update core fields first
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        
+        # Handle current roommates
+        if current_roommates_data is not None:
+            instance.current_roommates.set(current_roommates_data)
+
+        # Handle images
+        if images_data is not None:
+            # Clear existing images
+            instance.images.all().delete()
+            
+            # The first image is the main one
+            instance.image = images_data[0]
+            
+            # Save other images as ListingImage objects
+            if len(images_data) > 1:
+                for image_data in images_data[1:]:
+                    ListingImage.objects.create(listing=instance, image=image_data)
+
+        instance.save()
+        return instance
