@@ -74,13 +74,13 @@ class ProfileUpdateView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
 
-# --- ADD THIS NEW VIEW ---
+# --- FIX: Changed 'query' to 'q' to match frontend ---
 class UserSearchView(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        query = self.request.query_params.get('query', '')
+        query = self.request.query_params.get('q', '')
         if query:
             # Search by username or email, exclude the current user, and limit to 10 results
             return CustomUser.objects.filter(
