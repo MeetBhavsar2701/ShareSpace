@@ -122,6 +122,19 @@ class MatchesView(APIView):
         if seeker.role != 'Seeker':
             return Response({"error": "Only 'Seekers' can view matches."}, status=status.HTTP_403_FORBIDDEN)
 
+        target_city = request.query_params.get('city', seeker.city) 
+        
+        # Find listers who have an active listing in the target city.
+        listers = CustomUser.objects.filter(
+            role='Lister', 
+            listing__is_active=True,
+            listing__city__iexact=target_city  # Case-insensitive city filter
+        ).exclude(id=seeker.id).distinct()
+
+        if not listers.exists():
+            # Return an empty list if no listers are found in that city
+            return Response([], status=status.HTTP_200_OK)
+
         REQUIRED_COLS_ORDER = [
             'role_seeker', 'city_seeker', 'budget_seeker', 'cleanliness_seeker', 'noise_level_seeker',
             'sleep_schedule_seeker', 'smoking_seeker', 'social_level_seeker', 'has_pets_seeker',
@@ -133,7 +146,6 @@ class MatchesView(APIView):
         
         seeker_data = {col: getattr(seeker, col.replace('_seeker', ''), None) for col in REQUIRED_COLS_ORDER if col.endswith('_seeker')}
 
-        listers = CustomUser.objects.filter(role='Lister', listing__is_active=True).exclude(id=seeker.id).distinct()
         if not listers.exists():
             return Response([], status=status.HTTP_200_OK)
 
@@ -159,7 +171,7 @@ class MatchesView(APIView):
 
         results = []
         for i, lister in enumerate(listers):
-            score = round(scores[i] * 100)
+            score = round(scores[i])
             listing = lister.listing_set.filter(is_active=True).first()
             if score > 50 and listing:
                 results.append({
