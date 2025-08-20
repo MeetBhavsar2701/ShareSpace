@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ListingCard } from "@/features/listings/components/ListingCard";
+import { MyListingCard } from "@/features/user/components/MyListingCard"; // Make sure this is imported
 import { toast } from "sonner";
 
 export default function DashboardPage() {
@@ -18,14 +19,12 @@ export default function DashboardPage() {
     const role = sessionStorage.getItem("role");
     setUserRole(role);
 
-    // Fetch saved listings
     const fetchSavedListings = async () => {
       try {
         const response = await api.get("/users/favorites/");
         setSavedListings(response.data);
       } catch (error) {
         toast.error("Could not fetch saved listings.");
-        console.error("Failed to fetch saved listings:", error);
       } finally {
         setLoadingSaved(false);
       }
@@ -33,7 +32,6 @@ export default function DashboardPage() {
     
     fetchSavedListings();
 
-    // Fetch user's own listings if they are a Lister
     if (role === 'Lister') {
       const fetchMyListings = async () => {
         try {
@@ -41,7 +39,6 @@ export default function DashboardPage() {
           setMyListings(response.data);
         } catch (error) {
           toast.error("Could not fetch your listings.");
-          console.error("Failed to fetch your listings:", error);
         } finally {
           setLoadingMine(false);
         }
@@ -49,6 +46,16 @@ export default function DashboardPage() {
       fetchMyListings();
     }
   }, []);
+
+  const handleDeleteListing = async (listingId) => {
+    try {
+      await api.delete(`/listings/${listingId}/delete/`);
+      setMyListings(myListings.filter(listing => listing.id !== listingId));
+      toast.success("Listing deleted successfully!");
+    } catch (error) {
+      toast.error("Failed to delete the listing.");
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -73,7 +80,15 @@ export default function DashboardPage() {
                     <p>Loading your listings...</p>
                   ) : myListings.length > 0 ? (
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {myListings.map(listing => <ListingCard key={listing.id} listing={listing} />)}
+                        {myListings.map(listing => (
+                          // --- THIS IS THE CRITICAL FIX ---
+                          // Use MyListingCard instead of ListingCard here
+                          <MyListingCard 
+                            key={listing.id} 
+                            listing={listing}
+                            onDelete={handleDeleteListing}
+                          />
+                        ))}
                     </div>
                   ) : (
                     <p>You haven't created any listings yet.</p>
@@ -83,6 +98,7 @@ export default function DashboardPage() {
             </TabsContent>
           )}
 
+          {/* Other tabs remain the same */}
           <TabsContent value="matches" className="mt-6">
             <Card>
               <CardHeader>

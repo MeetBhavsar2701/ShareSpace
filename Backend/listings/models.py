@@ -27,7 +27,8 @@ class Listing(models.Model):
     longitude = models.FloatField(blank=True, null=True)
 
     image = CloudinaryField('image', blank=True, null=True)
-
+    views = models.PositiveIntegerField(default=0)
+    
     def __str__(self):
         return self.title
 

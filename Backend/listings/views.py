@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Q
 from .serializers import ListingSerializer
+from django.db.models import Count
 
 class PersonalizedListingListView(APIView):
     permission_classes = [AllowAny]
@@ -97,6 +98,22 @@ class ListingDetailView(generics.RetrieveAPIView):
     lookup_field = 'id'
     serializer_class = ListingSerializer
 
+    def get_object(self):
+        obj = super().get_object()
+        user = self.request.user
+        print("--------------------")
+        print(f"Listing Lister: {obj.lister}")
+        print(f"Request User: {user}")
+        print(f"User Authenticated: {user.is_authenticated}")
+        if user.is_authenticated:
+            print(f"Is user the lister? {obj.lister == user}")
+        print("--------------------")
+        if not user.is_authenticated or obj.lister != user:
+            obj.views += 1
+            obj.save(update_fields=['views'])
+
+        return obj
+
     def get_serializer_context(self):
         return {'request': self.request}
 
@@ -113,7 +130,9 @@ class MyListingsView(generics.ListAPIView):
     serializer_class = ListingSerializer
 
     def get_queryset(self):
-        return Listing.objects.filter(lister=self.request.user).order_by('-created_at')
+        return Listing.objects.filter(lister=self.request.user).annotate(
+            favorites_count=Count('favorited_by')
+        ).order_by('-created_at')
     
     def get_serializer_context(self):
         return {'request': self.request}

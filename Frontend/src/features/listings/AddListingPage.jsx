@@ -11,9 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { MapPicker } from "./components/MapPicker";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { X, UserPlus, Search } from "lucide-react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { CustomModal } from "@/components/CustomModal"; // Import the new modal
+import { CustomModal } from "@/components/CustomModal";
 
 export default function AddListingPage() {
   const navigate = useNavigate();
@@ -36,7 +34,7 @@ export default function AddListingPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loadingSearch, setLoadingSearch] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for the modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Auto-fill city from user's profile
   useEffect(() => {
@@ -96,6 +94,10 @@ export default function AddListingPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.address || !formData.latitude) {
+      toast.error("Please select a location on the map.");
+      return;
+    }
     const submissionData = new FormData();
     
     Object.entries(formData).forEach(([key, value]) => {
@@ -144,6 +146,7 @@ export default function AddListingPage() {
                 <Label htmlFor="title" className="text-lg font-semibold">Listing Title</Label>
                 <Input id="title" name="title" placeholder="e.g., Cozy Room in a Quiet Neighborhood" required onChange={handleChange} />
               </div>
+
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="city" className="text-lg font-semibold">City</Label>
@@ -154,6 +157,12 @@ export default function AddListingPage() {
                   <Input id="rent" name="rent" type="number" placeholder="e.g., 15000" required onChange={handleChange} />
                 </div>
               </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="address" className="text-lg font-semibold">Address</Label>
+                <Input id="address" name="address" placeholder="Select a location on the map or enter manually" required value={formData.address} onChange={handleChange} />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-lg font-semibold">Description</Label>
                 <Textarea id="description" name="description" placeholder="Describe the space, amenities, and your ideal roommate..." required onChange={handleChange} />

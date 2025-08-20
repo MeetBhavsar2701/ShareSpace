@@ -49,9 +49,12 @@ export function MyListingCard({ listing, onDelete }) {
             <Edit className="w-4 h-4 mr-2" /> Edit
           </Button>
         </Link>
+        
+        {/* --- DEBUGGING: Using a directly styled button to bypass variant issues --- */}
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" className="w-full">
+            {/* We apply direct Tailwind classes for styling to ensure visibility */}
+            <Button className="bg-red-500 hover:bg-red-600 text-white w-1/2">
               <Trash2 className="w-4 h-4 mr-2" /> Delete
             </Button>
           </AlertDialogTrigger>
@@ -65,12 +68,13 @@ export function MyListingCard({ listing, onDelete }) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onDelete(listing.id)}>
+              <AlertDialogAction onClick={() => onDelete(listing.id)} className="bg-red-500 hover:bg-red-600">
                 Continue
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
       </CardFooter>
     </Card>
   );

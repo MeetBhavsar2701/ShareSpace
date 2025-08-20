@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { publicApi } from "@/api";
+import api from "@/api"; 
 import { Map, Marker } from "pigeon-maps";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ export default function ListingDetailsPage() {
   useEffect(() => {
     const fetchListingDetails = async () => {
       try {
-        const response = await publicApi.get(`/listings/${id}/`);
+        const response = await api.get(`/listings/${id}/`);
         setListing(response.data);
       } catch (error) {
         console.error("Failed to fetch listing details:", error);

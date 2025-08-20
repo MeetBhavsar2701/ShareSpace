@@ -2,86 +2,77 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "@/api";
 import { useAuth } from "@/features/authentication/AuthContext";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { MapPicker } from "./components/MapPicker"; // Corrected import
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { MapPicker } from "./components/MapPicker";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { X, UserPlus, Search } from "lucide-react";
+import { CustomModal } from "@/components/CustomModal";
 
 export default function EditListingPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
-    city: "",
     address: "",
+    city: "",
     rent: "",
-    deposit: "",
-    lease_duration: "",
-    roommates_needed: "",
-    roommates_found: "",
-    apartment_type: "",
-    amenities: "",
+    description: "",
     pets_allowed: false,
     smoking_allowed: false,
     latitude: null,
     longitude: null,
-    images: [],
-    existing_images: [],
+    roommates_needed: 1,
+    current_roommates: [],
   });
-  const [mapPosition, setMapPosition] = useState(null);
+
+  const [existingImages, setExistingImages] = useState([]);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     async function fetchListing() {
       if (!user) return;
-
       try {
         const response = await api.get(`/listings/${id}/`);
-        const listingData = response.data;
+        const data = response.data;
 
-        if (listingData.lister.id !== user.id) {
+        if (data.lister.id !== user.id) {
           toast.error("You are not authorized to edit this listing.");
           navigate('/dashboard');
           return;
         }
 
         setFormData({
-          title: listingData.title,
-          description: listingData.description,
-          city: listingData.city,
-          address: listingData.address,
-          rent: listingData.rent,
-          deposit: listingData.deposit,
-          lease_duration: listingData.lease_duration,
-          roommates_needed: listingData.roommates_needed,
-          roommates_found: listingData.roommates_found,
-          apartment_type: listingData.apartment_type,
-          amenities: listingData.amenities,
-          pets_allowed: listingData.pets_allowed,
-          smoking_allowed: listingData.smoking_allowed,
-          latitude: listingData.latitude,
-          longitude: listingData.longitude,
-          images: [],
-          existing_images: listingData.images,
+          title: data.title || "",
+          address: data.address || "",
+          city: data.city || "",
+          rent: data.rent || "",
+          description: data.description || "",
+          pets_allowed: data.pets_allowed,
+          smoking_allowed: data.smoking_allowed,
+          latitude: data.latitude,
+          longitude: data.longitude,
+          roommates_needed: data.roommates_needed || 1,
+          current_roommates: data.current_roommates_details || [],
         });
-        setMapPosition({ lat: listingData.latitude, lng: listingData.longitude });
+
+        setExistingImages(data.images || []);
+
       } catch (error) {
-        console.error("Error fetching listing:", error);
-        toast.error("Failed to load listing.");
+        toast.error("Failed to load listing details.");
         navigate('/dashboard');
       } finally {
         setLoading(false);
@@ -90,260 +81,209 @@ export default function EditListingPage() {
     fetchListing();
   }, [id, user, navigate]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+  useEffect(() => {
+    if (!isModalOpen || searchQuery.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    const fetchUsers = async () => {
+      setLoadingSearch(true);
+      try {
+        const response = await api.get(`/users/search/?q=${searchQuery}`);
+        const addedRoommateIds = formData.current_roommates.map(r => r.id);
+        setSearchResults(response.data.filter(user => !addedRoommateIds.includes(user.id)));
+      } catch (error) {
+        toast.error("Could not fetch users.");
+      } finally {
+        setLoadingSearch(false);
+      }
+    };
+    const debounceTimer = setTimeout(fetchUsers, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, formData.current_roommates, isModalOpen]);
+  
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleSwitchChange = (name, checked) => setFormData({ ...formData, [name]: checked });
+  const handleLocationSelect = (location) => setFormData({ ...formData, ...location });
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      setExistingImages([]);
+      setImageFiles(files);
+      const previews = files.map(file => URL.createObjectURL(file));
+      setImagePreviews(previews);
+    }
+  };
+  
+  const removeNewImage = (index) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const addRoommate = (user) => {
+    setFormData(prev => ({ ...prev, current_roommates: [...prev.current_roommates, user] }));
+    setSearchQuery("");
+    setIsModalOpen(false);
   };
 
-  const handleFileChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      images: Array.from(e.target.files),
-    }));
-  };
-
-  const handleMapChange = (position, address) => {
-    setMapPosition(position);
-    setFormData((prev) => ({
-      ...prev,
-      latitude: position.lat,
-      longitude: position.lng,
-      address: address,
-    }));
+  const removeRoommate = (userId) => {
+    setFormData(prev => ({ ...prev, current_roommates: prev.current_roommates.filter(r => r.id !== userId) }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const data = new FormData();
-    for (const key in formData) {
-      if (key === 'images') {
-        formData.images.forEach((image) => {
-          data.append('images', image);
-        });
-      } else if (key !== 'id' && key !== 'existing_images') {
-        data.append(key, formData[key]);
+    if (!formData.address || !formData.latitude) {
+      toast.error("Please select a location on the map.");
+      return;
+    }
+    const submissionData = new FormData();
+    
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== 'current_roommates' && value !== null) {
+        submissionData.append(key, value);
       }
+    });
+
+    formData.current_roommates.forEach(roommate => {
+      submissionData.append('current_roommates', roommate.id);
+    });
+    
+    imageFiles.forEach(file => {
+      submissionData.append('images_data', file);
+    });
+
+    if (imageFiles.length === 0 && existingImages.length === 0) {
+      toast.error("Please ensure there is at least one photo.");
+      return;
     }
 
     try {
-      await api.patch(`/listings/${id}/update/`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      await api.patch(`/listings/${id}/update/`, submissionData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
       toast.success("Listing updated successfully!");
-      navigate('/dashboard');
-    } catch (error) {
-      console.error("Error updating listing:", error);
-      toast.error("Failed to update listing. Please check your data.");
+      navigate("/dashboard");
+    } catch (err) {
+      const errorMsg = err.response?.data?.detail || "Failed to update listing.";
+      toast.error(errorMsg);
     }
   };
 
   if (loading) {
-    return <div className="text-center p-8">Loading listing details...</div>;
+    return <div className="text-center p-8">Loading Listing...</div>;
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-6">
-      <Card className="max-w-4xl mx-auto">
-        <CardHeader>
-          <CardTitle>Edit Listing</CardTitle>
-          <CardDescription>
-            Update the details for your listing.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <main className="flex-grow container mx-auto py-12 px-4">
+        <Card className="max-w-3xl mx-auto shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold">Edit Your Listing</CardTitle>
+            <CardDescription>Update the details about the space you're offering.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-8">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  name="title"
-                  placeholder="e.g., Spacious 2BHK in Downtown"
-                  value={formData.title}
-                  onChange={handleChange}
-                  required
-                />
+                <Label htmlFor="title" className="text-lg font-semibold">Listing Title</Label>
+                <Input id="title" name="title" value={formData.title} required onChange={handleChange} />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input
-                  id="city"
-                  name="city"
-                  placeholder="e.g., New York"
-                  value={formData.city}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                placeholder="Describe your property and the roommates you are looking for."
-                value={formData.description}
-                onChange={handleChange}
-                rows={4}
-                required
-              />
-            </div>
-            
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="rent">Rent (per month)</Label>
-                <Input
-                  id="rent"
-                  name="rent"
-                  type="number"
-                  placeholder="e.g., 50000"
-                  value={formData.rent}
-                  onChange={handleChange}
-                  required
-                />
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="city" className="text-lg font-semibold">City</Label>
+                  <Input id="city" name="city" value={formData.city} required onChange={handleChange} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="rent" className="text-lg font-semibold">Monthly Rent (₹)</Label>
+                  <Input id="rent" name="rent" type="number" value={formData.rent} required onChange={handleChange} />
+                </div>
               </div>
+              
               <div className="space-y-2">
-                <Label htmlFor="deposit">Security Deposit</Label>
-                <Input
-                  id="deposit"
-                  name="deposit"
-                  type="number"
-                  placeholder="e.g., 100000"
-                  value={formData.deposit}
-                  onChange={handleChange}
-                  required
-                />
+                <Label htmlFor="address" className="text-lg font-semibold">Address</Label>
+                <Input id="address" name="address" placeholder="Select a location on the map or enter manually" required value={formData.address} onChange={handleChange} />
               </div>
-            </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="lease_duration">Lease Duration (months)</Label>
-                <Input
-                  id="lease_duration"
-                  name="lease_duration"
-                  type="number"
-                  placeholder="e.g., 12"
-                  value={formData.lease_duration}
-                  onChange={handleChange}
-                  required
-                />
+                <Label htmlFor="description" className="text-lg font-semibold">Description</Label>
+                <Textarea id="description" name="description" value={formData.description} required onChange={handleChange} />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="roommates_needed">Roommates Needed</Label>
-                <Input
-                  id="roommates_needed"
-                  name="roommates_needed"
-                  type="number"
-                  placeholder="e.g., 1"
-                  value={formData.roommates_needed}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="apartment_type">Apartment Type</Label>
-              <Select
-                id="apartment_type"
-                name="apartment_type"
-                value={formData.apartment_type}
-                onValueChange={(value) => handleSelectChange('apartment_type', value)}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an apartment type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1BHK">1BHK</SelectItem>
-                  <SelectItem value="2BHK">2BHK</SelectItem>
-                  <SelectItem value="3BHK">3BHK</SelectItem>
-                  <SelectItem value="4BHK">4BHK</SelectItem>
-                  <SelectItem value="Studio">Studio</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
-            <div className="space-y-2">
-              <Label>Current Images</Label>
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {formData.existing_images.map((img, index) => (
-                    <CarouselItem key={index}>
-                      <img src={img.image} alt={`Listing image ${index + 1}`} className="w-full h-auto object-cover rounded-md" />
-                    </CarouselItem>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="roommates_needed" className="text-lg font-semibold">Roommates Needed</Label>
+                  <Input id="roommates_needed" name="roommates_needed" type="number" min="1" value={formData.roommates_needed} required onChange={handleChange} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-lg font-semibold">Upload Photos</Label>
+                  <Input type="file" onChange={handleImageChange} multiple />
+                   <p className="text-sm text-gray-500">Uploading new photos will replace existing ones.</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                {existingImages.map((img, index) => (
+                  <div key={img.image_url || index} className="relative group">
+                    <img src={img.image_url} alt={`Existing ${index}`} className="h-24 w-full object-cover rounded-md" />
+                  </div>
+                ))}
+                {imagePreviews.map((src, index) => (
+                  <div key={src} className="relative group">
+                    <img src={src} alt={`Preview ${index}`} className="h-24 w-full object-cover rounded-md" />
+                    <button type="button" onClick={() => removeNewImage(index)} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100">
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-4">
+                <Label className="text-lg font-semibold">Current Roommates (Optional)</Label>
+                <div className="flex flex-wrap gap-2">
+                  {formData.current_roommates.map(user => (
+                    <div key={user.id} className="flex items-center gap-2 bg-gray-100 rounded-full pl-2 pr-1 py-1">
+                      <Avatar className="w-6 h-6"><AvatarImage src={user.avatar_url} /><AvatarFallback>{user.username.charAt(0)}</AvatarFallback></Avatar>
+                      <span className="text-sm font-medium">{user.username}</span>
+                      <button type="button" onClick={() => removeRoommate(user.id)}><X size={14} /></button>
+                    </div>
                   ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="images">Upload New Images</Label>
-              <Input
-                id="images"
-                name="images"
-                type="file"
-                onChange={handleFileChange}
-                multiple
-                accept="image/*"
-              />
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="pets_allowed"
-                  name="pets_allowed"
-                  checked={formData.pets_allowed}
-                  onCheckedChange={(checked) => handleSelectChange('pets_allowed', checked)}
-                />
-                <Label htmlFor="pets_allowed">Pets Allowed</Label>
+                </div>
+                <Button type="button" variant="outline" onClick={() => setIsModalOpen(true)}>
+                  <UserPlus className="mr-2 h-4 w-4" /> Add Roommate
+                </Button>
               </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="smoking_allowed"
-                  name="smoking_allowed"
-                  checked={formData.smoking_allowed}
-                  onCheckedChange={(checked) => handleSelectChange('smoking_allowed', checked)}
-                />
-                <Label htmlFor="smoking_allowed">Smoking Allowed</Label>
+
+              <div className="space-y-2">
+                <Label className="text-lg font-semibold">Location</Label>
+                {formData.latitude && formData.longitude && (
+                  <MapPicker 
+                      onLocationSelect={handleLocationSelect} 
+                      initialPosition={{ lat: formData.latitude, lng: formData.longitude }} 
+                  />
+                )}
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Location</Label>
-              <p className="text-sm text-gray-500">
-                {formData.address || 'Select a location on the map to get the address.'}
-              </p>
-              <MapPicker
-                onSelectLocation={handleMapChange}
-                initialPosition={mapPosition}
-              />
-            </div>
-            
-            <Button type="submit" className="w-full">
-              Update Listing
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <Label htmlFor="pets_allowed">Pets Allowed?</Label>
+                  <Switch id="pets_allowed" checked={formData.pets_allowed} onCheckedChange={(checked) => handleSwitchChange("pets_allowed", checked)} />
+                </div>
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <Label htmlFor="smoking_allowed">Smoking Allowed?</Label>
+                  <Switch id="smoking_allowed" checked={formData.smoking_allowed} onCheckedChange={(checked) => handleSwitchChange("smoking_allowed", checked)} />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <Button type="submit" size="lg" className="bg-emerald-500 hover:bg-emerald-600">Update Listing</Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </main>
+
+      <CustomModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add a Roommate">
+          {/* ... same as AddListingPage ... */}
+      </CustomModal>
     </div>
   );
 }

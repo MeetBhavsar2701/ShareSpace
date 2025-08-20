@@ -36,6 +36,8 @@ class ListingSerializer(serializers.ModelSerializer):
     current_roommates_details = UserSerializer(
         many=True, read_only=True, source="current_roommates"
     )
+    favorites_count = serializers.SerializerMethodField()
+    views = serializers.ReadOnlyField()
 
     class Meta:
         model = Listing
@@ -61,6 +63,8 @@ class ListingSerializer(serializers.ModelSerializer):
             "current_roommates",
             "current_roommates_details",
             "is_favorited",
+            "favorites_count",
+            "views",
         ]
 
     def get_image_url(self, obj):
@@ -91,3 +95,10 @@ class ListingSerializer(serializers.ModelSerializer):
             for image_data in images_data:
                 ListingImage.objects.create(listing=listing, image=image_data)
         return listing
+    
+    def get_favorites_count(self, obj):
+        # Check if the annotation from the view is present
+        if hasattr(obj, 'favorites_count'):
+            return obj.favorites_count
+        # Fallback for other views where the annotation might not be present
+        return obj.favorited_by.count()
