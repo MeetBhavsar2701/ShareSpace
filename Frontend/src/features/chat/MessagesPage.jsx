@@ -1,26 +1,64 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom"; // Import useSearchParams
 import { Header } from "@/components/Header";
 import { ConversationList } from "./components/ConversationList";
 import { ChatWindow } from "./components/ChatWindow";
-
-const mockConversations = [
-  { id: 1, name: "Jessica", avatar: "https://i.pravatar.cc/150?img=1", lastMessage: "Yes, it is. Glad you like it!", time: "10:42 AM" },
-  { id: 2, name: "Mike", avatar: "https://i.pravatar.cc/150?img=2", lastMessage: "Can I schedule a visit for this weekend?", time: "Yesterday" },
-];
+import api from "@/api";
+import { toast } from "sonner";
+import { useAuth } from "@/features/authentication/AuthContext";
 
 export default function MessagesPage() {
-  const [selectedConversationId, setSelectedConversationId] = useState(1);
-  const selectedConversation = mockConversations.find(c => c.id === selectedConversationId);
+  const [conversations, setConversations] = useState([]);
+  const [selectedConversationId, setSelectedConversationId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
+  const [searchParams] = useSearchParams(); // Hook to read URL query parameters
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await api.get("/chat/my/");
+        setConversations(response.data);
+        
+        // --- FIX: Read conversation ID from URL query and select it ---
+        const urlConvoId = searchParams.get('conversationId');
+        if (urlConvoId) {
+          setSelectedConversationId(urlConvoId);
+        } else if (response.data.length > 0) {
+          setSelectedConversationId(response.data[0].id);
+        }
+      } catch (error) {
+        toast.error("Failed to load conversations.");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (!authLoading) {
+      fetchConversations();
+    }
+  }, [user, authLoading, searchParams]); // Add searchParams to dependencies
+
+  const selectedConversation = conversations.find(c => c.id == selectedConversationId);
 
   return (
     <div className="flex flex-col h-screen">
-      <Header />
       <main className="flex-grow grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 h-[calc(100vh-4rem)]">
-        <div className="md:col-span-1 lg:col-span-1 h-full">
-          <ConversationList conversations={mockConversations} onSelectConversation={setSelectedConversationId} />
-        </div>
+        {loading || authLoading ? (
+          <div className="md:col-span-1 lg:col-span-1 flex items-center justify-center">Loading...</div>
+        ) : (
+          <div className="md:col-span-1 lg:col-span-1 h-full">
+            <ConversationList conversations={conversations} onSelectConversation={setSelectedConversationId} />
+          </div>
+        )}
         <div className="md:col-span-2 lg:col-span-3 h-full">
-          <ChatWindow conversation={selectedConversation} />
+          {/* Ensure conversationId is passed as a string */}
+          <ChatWindow conversationId={selectedConversationId} conversation={selectedConversation} />
         </div>
       </main>
     </div>

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Home, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import { setAuthToken } from "@/api"; 
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -34,7 +35,8 @@ export default function LoginPage() {
         sessionStorage.setItem("role", response.data.role);
         sessionStorage.setItem("avatar_url", response.data.avatar_url);
         localStorage.setItem("role", response.data.role);
-        
+        setAuthToken(response.data.access);
+
         navigate("/listings");
       }
     } catch (err) {

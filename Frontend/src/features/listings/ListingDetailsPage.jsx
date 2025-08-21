@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom"; // Import useNavigate
 import { publicApi } from "@/api";
 import api from "@/api"; 
 import { Map, Marker } from "pigeon-maps";
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { MapPin, Home, Users, BedDouble, Cigarette, PawPrint, MessageSquare, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner"; // Import toast for user feedback
 
 const InfoBadge = ({ icon, text }) => (
   <div className="flex items-center gap-3 p-4 bg-gray-100 rounded-lg shadow-sm">
@@ -19,6 +20,7 @@ const InfoBadge = ({ icon, text }) => (
 
 export default function ListingDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate(); // Initialize navigate hook
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const userRole = sessionStorage.getItem('role');
@@ -37,6 +39,28 @@ export default function ListingDetailsPage() {
     };
     fetchListingDetails();
   }, [id]);
+
+  // Handler to initiate chat with the lister
+  const handleMessageLister = async () => {
+    if (!currentUserId) {
+        toast.error("You must be logged in to send a message.");
+        return;
+    }
+    if (currentUserId === listing.lister.id) {
+        toast.info("This is your own listing.");
+        return;
+    }
+    try {
+        const response = await api.post("/chat/create/", {
+            user_b_id: listing.lister.id,
+        });
+        const conversationId = response.data.id;
+        navigate(`/messages?conversationId=${conversationId}`);
+    } catch (error) {
+        toast.error("Failed to start a conversation.");
+        console.error("Error creating chat:", error);
+    }
+  };
 
   if (loading) {
     return <div className="flex h-screen items-center justify-center">Loading...</div>;
@@ -173,7 +197,13 @@ export default function ListingDetailsPage() {
                     </div>
                   </div>
                 )}
-                <Button size="lg" className="w-full bg-emerald-500 hover:bg-emerald-600">
+                {/* --- The Message Button with the onClick handler --- */}
+                <Button 
+                    size="lg" 
+                    className="w-full bg-emerald-500 hover:bg-emerald-600"
+                    onClick={handleMessageLister}
+                    disabled={currentUserId === listing.lister.id}
+                >
                   <MessageSquare className="mr-2 h-5 w-5" />
                   Message {listing.lister.username}
                 </Button>

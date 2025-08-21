@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = 'django-insecure-6xwuo$3s(7ea78sy&udve+wn466n60$#o1cwfeu46hgx5@c02c'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'listings',
     'cloudinary_storage',
     'cloudinary',
+    "channels",
+    "chat",
 ]
 
 MIDDLEWARE = [
@@ -126,3 +128,12 @@ CLOUDINARY_STORAGE = {
 }
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+ASGI_APPLICATION = "sharespace_backend.asgi.application" 
+
+# Dev-friendly InMemory channel layer (no Redis needed while developing)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
