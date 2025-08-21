@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RoommateCard } from "./components/RoommateCard";
+import { ConversationList } from "../chat/components/ConversationList"; // Import ConversationList
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 export default function DashboardPage() {
   // Initialize state directly from sessionStorage
@@ -17,10 +19,14 @@ export default function DashboardPage() {
   const [savedListings, setSavedListings] = useState([]);
   const [myListings, setMyListings] = useState([]);
   const [matches, setMatches] = useState([]);
+  const [conversations, setConversations] = useState([]); // Add conversations state
   
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [loadingMine, setLoadingMine] = useState(true);
   const [loadingMatches, setLoadingMatches] = useState(true);
+  const [loadingConversations, setLoadingConversations] = useState(true); // Add loading state for conversations
+
+  const navigate = useNavigate(); // Initialize navigate
 
   const fetchMatches = useCallback(async (city) => {
     setLoadingMatches(true);
@@ -45,6 +51,17 @@ export default function DashboardPage() {
       } finally {
         setLoadingSaved(false);
       }
+
+      // Fetch conversations for everyone
+      try {
+        const convoRes = await api.get("/chat/my/");
+        setConversations(convoRes.data);
+      } catch (error) {
+        toast.error("Could not fetch conversations.");
+      } finally {
+        setLoadingConversations(false);
+      }
+
 
       // Fetch role-specific data
       const role = sessionStorage.getItem("role");
@@ -89,6 +106,11 @@ export default function DashboardPage() {
       toast.error("Failed to delete the listing.");
     }
   };
+
+  const handleSelectConversation = (conversationId) => {
+    navigate(`/messages?conversationId=${conversationId}`);
+  };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -162,7 +184,16 @@ export default function DashboardPage() {
           <TabsContent value="messages" className="mt-6">
             <Card>
               <CardHeader><CardTitle>Your Conversations</CardTitle></CardHeader>
-              <CardContent><p>Messages content goes here...</p></CardContent>
+              <CardContent>
+                {loadingConversations ? (
+                  <p>Loading conversations...</p>
+                ) : (
+                  <ConversationList
+                    conversations={conversations}
+                    onSelectConversation={handleSelectConversation}
+                  />
+                )}
+              </CardContent>
             </Card>
           </TabsContent>
 
