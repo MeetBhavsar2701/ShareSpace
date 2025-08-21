@@ -3,6 +3,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 from .models import Message, Conversation
 import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -67,17 +68,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             sender = self.scope["user"]
             
-            await self.save_message(sender, message_text)
+            new_message = await self.save_message(sender, message_text)
 
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     "type": "chat_message",
-                    "message": message_text,
-                    "sender_id": str(sender.id),
-                    "sender_username": sender.username,
+                    "message": new_message.text,
+                    "sender_id": str(new_message.sender.id),
+                    "sender_username": new_message.sender.username,
+                    "created_at": new_message.created_at.isoformat(),
                 }
             )
+
         except Exception as e:
             print(f"Error in receive: {str(e)}")
             logger.error(f"Error processing message: {str(e)}")
@@ -88,6 +91,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "message": event["message"],
                 "sender_id": event["sender_id"],
                 "sender_username": event["sender_username"],
+                "created_at": event["created_at"],
             }))
         except Exception as e:
             print(f"Error in chat_message: {str(e)}")
@@ -113,7 +117,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, sender, message_text):
         try:
             conversation = Conversation.objects.get(id=self.conversation_id)
-            Message.objects.create(
+            return Message.objects.create(
                 conversation=conversation,
                 sender=sender,
                 text=message_text,

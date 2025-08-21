@@ -1,4 +1,7 @@
+// Frontend/src/features/chat/components/ChatWindow.jsx
+
 import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,7 +56,7 @@ export function ChatWindow({ conversationId, conversation }) {
       const data = JSON.parse(e.data);
       console.log("Message received from server:", data);
       const isMyMessage = data.sender_id === user.id;
-      setMessages((prev) => [...prev, { text: data.message, sender: isMyMessage ? "me" : "other", sender_id: data.sender_id }]);
+      setMessages((prev) => [...prev, { text: data.message, sender: isMyMessage ? "me" : "other", sender_id: data.sender_id, created_at: data.created_at }]);
     };
     
     ws.onclose = (e) => {
@@ -75,6 +78,7 @@ export function ChatWindow({ conversationId, conversation }) {
           text: msg.text,
           sender: msg.sender.id === user.id ? "me" : "other",
           sender_id: msg.sender.id,
+          created_at: msg.created_at
         }));
         setMessages(formattedMessages);
       } catch (error) {
@@ -102,6 +106,12 @@ export function ChatWindow({ conversationId, conversation }) {
     }
   };
 
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return "";
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
   if (!conversation) {
     return <div className="flex h-full items-center justify-center text-muted-foreground">Select a conversation to start chatting.</div>;
   }
@@ -111,24 +121,31 @@ export function ChatWindow({ conversationId, conversation }) {
   return (
     <div className="flex flex-col h-full">
       <div className="border-b p-4 flex items-center gap-4">
-        <Avatar>
-          <AvatarImage src={otherUser?.avatar_url} />
-          <AvatarFallback>{otherUser?.username.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <h2 className="font-semibold text-lg">{otherUser?.username}</h2>
+        <Link to={`/users/${otherUser?.id}`}>
+          <Avatar>
+            <AvatarImage src={otherUser?.avatar_url} />
+            <AvatarFallback>{otherUser?.username.charAt(0)}</AvatarFallback>
+          </Avatar>
+        </Link>
+        <Link to={`/users/${otherUser?.id}`}>
+          <h2 className="font-semibold text-lg">{otherUser?.username}</h2>
+        </Link>
       </div>
 
       <div className="flex-grow p-6 space-y-6 overflow-y-auto">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.sender === "me" ? "justify-end" : "items-start gap-2"}`}>
             {msg.sender !== "me" && (
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={otherUser?.avatar_url} />
-                <AvatarFallback>{otherUser?.username.charAt(0)}</AvatarFallback>
-              </Avatar>
+               <Link to={`/users/${otherUser?.id}`}>
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={otherUser?.avatar_url} />
+                  <AvatarFallback>{otherUser?.username.charAt(0)}</AvatarFallback>
+                </Avatar>
+              </Link>
             )}
-            <div className={`${msg.sender === "me" ? "bg-emerald-600 text-white rounded-lg rounded-br-none" : "bg-gray-100 rounded-lg rounded-bl-none"} p-3 max-w-xs`}>
+            <div className={` p-3 max-w-xs ${msg.sender === "me" ? "bg-emerald-600 text-white rounded-lg rounded-br-none" : "bg-gray-100 rounded-lg rounded-bl-none"}`}>
               <p>{msg.text}</p>
+              <p className={`text-xs mt-1 ${msg.sender === 'me' ? 'text-gray-300' : 'text-gray-500'}`}>{formatTimestamp(msg.created_at)}</p>
             </div>
           </div>
         ))}
