@@ -2,16 +2,13 @@
 
 **Find Your Place. Discover Your People.**
 
-[![Stars](https://img.shields.io/github/stars/MeetBhavsar2701/ShareSpace?style=flat&color=ff5722)](https://github.com/MeetBhavsar2701/ShareSpace/stargazers)  
-[![Forks](https://img.shields.io/github/forks/MeetBhavsar2701/ShareSpace?style=flat&color=ff9800)](https://github.com/MeetBhavsar2701/ShareSpace/network/members)  
-[![Issues](https://img.shields.io/github/issues/MeetBhavsar2701/ShareSpace?style=flat&color=f44336)](https://github.com/MeetBhavsar2701/ShareSpace/issues)  
-[![License](https://img.shields.io/github/license/MeetBhavsar2701/ShareSpace?style=flat&color=4caf50)](LICENSE)  
+---
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)  
-![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)  
-![Django](https://img.shields.io/badge/Django-4.x-092e20?logo=django&logoColor=white)  
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38bdf8?logo=tailwindcss&logoColor=white)  
-![XGBoost](https://img.shields.io/badge/ML-XGBoost-orange)  
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![XGBoost](https://img.shields.io/badge/XGBoost-59C3E3?style=for-the-badge&logo=xgboost&logoColor=white)
 
 ---
 
