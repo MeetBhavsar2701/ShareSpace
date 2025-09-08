@@ -1,97 +1,98 @@
-```markdown
-# ShareSpace
+## ShareSpace
 
-A modern, full-stack roommate and listings platform. This project features real-time chat, ML-powered roommate matching, and rich listings functionality.
+An individual portfolio project showcasing a modern full‑stack web app: real‑time chat, ML‑powered roommate matching, and listings discovery. Built end‑to‑end by me using Django/DRF + Channels (ASGI) and React (Vite) + Tailwind CSS.
 
-**Tech Stack:**
-* **Backend:** Django, Django REST Framework, Channels (for WebSockets)
-* **Frontend:** React (with Vite), Tailwind CSS
+### Highlights — What this project demonstrates
+- Backend API design with Django REST Framework and JWT‑style auth
+- Real‑time features using WebSockets (Django Channels)
+- Frontend stateful UI with React + modern tooling (Vite, Tailwind)
+- Practical ML integration via a scikit‑learn pipeline for recommendations
+- Clean project structure, environment management, and testing
 
----
+> If you're reviewing my work: jump to Architecture, Technical Decisions, and Roadmap below.
 
-## Key Features
+### Features
+- Real‑time chat (WebSockets)
+- Roommate matching via pretrained ML pipeline
+- Listings CRUD with filters and map
+- Auth, profiles, favorites, notifications
 
-* **Real-time Chat:** Instant messaging between users, built with WebSockets.
-* **ML Roommate Matching:** A pre-trained machine learning pipeline suggests compatible roommates.
-* **Listings Management:** Full CRUD (Create, Read, Update, Delete) functionality for property listings, complete with filtering and an interactive map.
-* **User System:** Includes authentication, user profiles, a 'favorites' system, and notifications.
+### Demo (local)
+- API: `http://127.0.0.1:8000/`
+- Frontend: `http://localhost:5173/`
 
----
+Screenshots/GIFs
+- AddListing → detail page: [screenshots/AddListing.png]
+- Chat in real time: [screenshots/Chat.gif]
+- Matching results: [screenshots/Matches.png]
 
-## Project Structure
-
-This project is organized as a monorepo:
-
+### Monorepo
+```
+ShareSpace/
+  Backend/   # Django API, Channels, apps (users, listings, chat)
+  Frontend/  # React (Vite) UI
 ```
 
-ShareSpace/
-├── Backend/   \# Django API, Channels, and apps (users, listings, chat)
-└── Frontend/  \# React (Vite) UI
-
-````
-
 ---
+
+## Architecture (high level)
+- Client (React) consumes REST endpoints for CRUD and uses WebSockets for live chat.
+- API (Django/DRF) exposes endpoints for auth, users, listings, chat metadata.
+- Realtime (Channels/ASGI) handles WebSocket connections for chat and presence.
+- ML (scikit‑learn) uses pretrained artifacts (`roommate_matcher_pipeline.pkl`) to rank potential roommates.
+- Static/media (optional Cloudinary) for image hosting.
+
+```
+React (Vite) ── REST ──> DRF (Django)
+          ╲            ╱
+           ╲─ WebSocket ─> Channels (ASGI)
+
+ML Artifacts (pkl) → used by Django views/services for matching
+```
 
 ## Getting Started
 
 ### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- Git
 
-* Python 3.10+
-* Node.js 18+
-* Git
-
-### Backend Setup (Django)
-
+### Backend (Django)
 ```bash
-# Navigate to the Backend directory
 cd Backend
-
-# Create and activate a virtual environment
 python -m venv venv
-# On Windows PowerShell:
-# venv\Scripts\Activate.ps1
+# Windows PowerShell
+venv\Scripts\Activate.ps1
 
-# Install dependencies
 pip install --upgrade pip
+# If requirements.txt exists, prefer:
+# pip install -r requirements.txt
+# Otherwise, install common deps:
 pip install django djangorestframework daphne channels channels-redis django-cors-headers cloudinary scikit-learn pandas numpy
 
-# Run database migrations
 python manage.py migrate
-
-# (Optional) Seed the database with sample listings
+# Optional seed data
 # python manage.py seed_listings
 
-# Start the development server
 python manage.py runserver
-````
+```
+API default: `http://127.0.0.1:8000/`.
 
-The API will be available at `http://127.0.0.1:8000/`.
-
-### Frontend Setup (Vite + React)
-
+### Frontend (Vite + React)
 ```bash
-# Navigate to the Frontend directory
 cd Frontend
-
-# Install dependencies
 npm install
-
-# Start the development server
 npm run dev
 ```
+App default: `http://localhost:5173/`.
 
-The application will be running at `http://localhost:5173/`.
-
------
+---
 
 ## Environment Variables
 
-You will need to create `.env` files for both the backend and frontend.
-
-**Backend (`Backend/.env`):**
-
+Backend (`Backend/.env`):
 ```
-DJANGO_SECRET_KEY=your-secret-key-here
+DJANGO_SECRET_KEY=change-me
 DJANGO_DEBUG=True
 DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost
 CORS_ALLOWED_ORIGINS=http://localhost:5173
@@ -99,77 +100,84 @@ REDIS_URL=redis://localhost:6379/0
 CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
 ```
 
-**Frontend (`Frontend/.env.local`):**
-
+Frontend (`Frontend/.env.local`):
 ```
-VITE_API_BASE_URL=[http://127.0.0.1:8000](http://127.0.0.1:8000)
+VITE_API_BASE_URL=http://127.0.0.1:8000
 VITE_WS_BASE_URL=ws://127.0.0.1:8000
 ```
 
------
+---
 
-## Running WebSockets for Chat
-
-The standard `runserver` command will run the ASGI application by default. For a setup that more closely resembles a production environment, you can use Daphne:
-
+## WebSockets (Chat)
+`runserver` runs ASGI by default. For production‑like dev:
 ```bash
 cd Backend
 daphne -b 0.0.0.0 -p 8000 sharespace_backend.asgi:application
 ```
+If using Redis channel layer, ensure Redis is running and configured in settings.
 
-*Note: If you are using the Redis channel layer, make sure your Redis server is running and properly configured in your Django settings.*
+---
 
------
+## Technical Decisions (brief)
+- Authentication: DRF with token/JWT‑style flows; CORS configured for local dev.
+- Realtime: Channels with ASGI; optional Redis for scalable channel layers.
+- Data: SQLite for local simplicity; easily replaceable with Postgres.
+- ML: Pretrained scikit‑learn pipeline loaded on demand for deterministic results.
+- Frontend: Vite for fast DX; Tailwind for utility‑first styling; componentized features.
 
-## Running Tests
+## Security & Quality
+- CORS restricted to dev origin by default
+- Secrets pulled from environment variables
+- Minimal test coverage included for auth and WebSockets
 
-To run the backend tests:
-
+## Tests
 ```bash
 cd Backend
 python manage.py test
 ```
+See examples in `Backend/test_token.py` and `Backend/test_websocket.py`.
 
-Examples of tests can be found in `Backend/test_token.py` and `Backend/test_websocket.py`.
-
------
+---
 
 ## Useful Commands
-
-Here are some common commands you might use during development:
-
-**Backend:**
-
 ```bash
-# Create new database migrations
+# Backend
 python manage.py makemigrations
-
-# Apply database migrations
 python manage.py migrate
-
-# Create a superuser for the Django admin panel
 python manage.py createsuperuser
-
-# Run the development server
 python manage.py runserver
-```
 
-**Frontend:**
-
-```bash
-# Start the development server
+# Frontend
 npm run dev
-
-# Create a production build
 npm run build
-
-# Preview the production build
 npm run preview
 ```
 
-```
+---
+
+## Roadmap
+- Dockerize dev and prod environments
+- Integrate Redis for production WebSockets
+- Add Postgres and migrations for cloud deployment
+- Expand unit/integration tests (pytest + frontend testing)
+- Add CI (GitHub Actions) and CD targets
+
+## Contributing
+1. Create a feature branch
+2. Commit with clear messages
+3. Open a PR with context/screenshots
+
+## License
+MIT (add a `LICENSE` file if missing).
 
 ---
----
+
+## About This Project
+I built ShareSpace to demonstrate full‑stack skills across backend, frontend, realtime communication, and practical ML integration. If you have feedback or opportunities, feel free to reach out.
+
+Contact
+- Email: your.email@example.com
+- LinkedIn: https://www.linkedin.com/in/your‑profile
+- Portfolio: https://your‑portfolio.example
 
 
