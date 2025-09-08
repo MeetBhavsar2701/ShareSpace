@@ -4,12 +4,11 @@
 
 ---
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![XGBoost](https://img.shields.io/badge/XGBoost-59C3E3?style=for-the-badge&logo=xgboost&logoColor=white)
-
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev)
+[![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![XGBoost](https://img.shields.io/badge/XGBoost-59C3E3?style=for-the-badge&logo=xgboost&logoColor=white)](https://xgboost.ai)
 ---
 
 ShareSpace is an intelligent roommate matching platform that uses machine learning to connect compatible people with amazing living spaces. Whether you're looking for a place to live or someone to share your space with, ShareSpace makes the process simple, safe, and successful.
