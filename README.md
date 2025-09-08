@@ -1,183 +1,252 @@
-## ShareSpace
+# ShareSpace 🏠
 
-An individual portfolio project showcasing a modern full‑stack web app: real‑time chat, ML‑powered roommate matching, and listings discovery. Built end‑to‑end by me using Django/DRF + Channels (ASGI) and React (Vite) + Tailwind CSS.
+**Find Your Place. Discover Your People.**
 
-### Highlights — What this project demonstrates
-- Backend API design with Django REST Framework and JWT‑style auth
-- Real‑time features using WebSockets (Django Channels)
-- Frontend stateful UI with React + modern tooling (Vite, Tailwind)
-- Practical ML integration via a scikit‑learn pipeline for recommendations
-- Clean project structure, environment management, and testing
+[![Stars](https://img.shields.io/github/stars/MeetBhavsar2701/ShareSpace?style=flat&color=ff5722)](https://github.com/MeetBhavsar2701/ShareSpace/stargazers)  
+[![Forks](https://img.shields.io/github/forks/MeetBhavsar2701/ShareSpace?style=flat&color=ff9800)](https://github.com/MeetBhavsar2701/ShareSpace/network/members)  
+[![Issues](https://img.shields.io/github/issues/MeetBhavsar2701/ShareSpace?style=flat&color=f44336)](https://github.com/MeetBhavsar2701/ShareSpace/issues)  
+[![License](https://img.shields.io/github/license/MeetBhavsar2701/ShareSpace?style=flat&color=4caf50)](LICENSE)  
 
-> If you're reviewing my work: jump to Architecture, Technical Decisions, and Roadmap below.
-
-### Features
-- Real‑time chat (WebSockets)
-- Roommate matching via pretrained ML pipeline
-- Listings CRUD with filters and map
-- Auth, profiles, favorites, notifications
-
-### Demo (local)
-- API: `http://127.0.0.1:8000/`
-- Frontend: `http://localhost:5173/`
-
-Screenshots/GIFs
-- AddListing → detail page: [screenshots/AddListing.png]
-- Chat in real time: [screenshots/Chat.gif]
-- Matching results: [screenshots/Matches.png]
-
-### Monorepo
-```
-ShareSpace/
-  Backend/   # Django API, Channels, apps (users, listings, chat)
-  Frontend/  # React (Vite) UI
-```
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)  
+![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)  
+![Django](https://img.shields.io/badge/Django-4.x-092e20?logo=django&logoColor=white)  
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38bdf8?logo=tailwindcss&logoColor=white)  
+![XGBoost](https://img.shields.io/badge/ML-XGBoost-orange)  
 
 ---
 
-## Architecture (high level)
-- Client (React) consumes REST endpoints for CRUD and uses WebSockets for live chat.
-- API (Django/DRF) exposes endpoints for auth, users, listings, chat metadata.
-- Realtime (Channels/ASGI) handles WebSocket connections for chat and presence.
-- ML (scikit‑learn) uses pretrained artifacts (`roommate_matcher_pipeline.pkl`) to rank potential roommates.
-- Static/media (optional Cloudinary) for image hosting.
+ShareSpace is an intelligent roommate matching platform that uses machine learning to connect compatible people with amazing living spaces. Whether you're looking for a place to live or someone to share your space with, ShareSpace makes the process simple, safe, and successful.
 
-```
-React (Vite) ── REST ──> DRF (Django)
-          ╲            ╱
-           ╲─ WebSocket ─> Channels (ASGI)
+## ✨ Features
 
-ML Artifacts (pkl) → used by Django views/services for matching
-```
+### 🎯 Smart Matching Algorithm
+- **AI-Powered Compatibility**: Uses XGBoost machine learning model to analyze lifestyle preferences, habits, and compatibility factors
+- **Personalized Recommendations**: Get matched with roommates based on cleanliness, sleep schedule, noise tolerance, social preferences, and more
+- **Budget Compatibility**: Smart filtering ensures financial compatibility between seekers and listers
 
-## Getting Started
+### 🏡 Comprehensive Listing System
+- **Advanced Search Filters**: Filter by price, location, amenities, house rules, and lifestyle preferences
+- **Interactive Maps**: Visual location picker with Leaflet integration for precise address selection
+- **Image Management**: Cloudinary-powered image uploads for listings and user profiles
+- **Real-time Updates**: Track roommate availability and listing status
+
+### 💬 Real-time Communication
+- **WebSocket Chat**: Instant messaging between users with real-time notifications
+- **Conversation Management**: Organized chat history and message threading
+
+### 👤 User Profiles & Preferences
+- **Detailed Profiles**: Comprehensive user profiles with lifestyle preferences, occupation, and personality traits
+- **MBTI Integration**: Personality type matching for better compatibility
+- **Favorites System**: Save and manage favorite listings and potential roommates
+- **Role-based Access**: Separate interfaces for Seekers and Listers
+
+### 🔐 Security & Authentication
+- **JWT Authentication**: Secure token-based authentication system
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Django 4.x** - Web framework
+- **Django REST Framework** - API development
+- **Django Channels** - WebSocket support for real-time chat
+- **PostgreSQL/SQLite** - Database
+- **XGBoost** - Machine learning model for roommate matching
+- **Cloudinary** - Image storage and management
+- **JWT** - Authentication tokens
+
+### Frontend
+- **React 19** - UI framework
+- **Vite** - Build tool and development server
+- **Tailwind CSS** - Styling framework
+- **Framer Motion** - Animation library
+- **React Router** - Client-side routing
+- **Axios** - HTTP client
+- **Leaflet** - Interactive maps
+- **Radix UI** - Accessible component primitives
+
+### Machine Learning
+- **XGBoost** - Gradient boosting for compatibility scoring
+- **Scikit-learn** - Data preprocessing and model evaluation
+- **Pandas** - Data manipulation
+- **NumPy** - Numerical computing
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- Git
+- Python 3.8+
+- Node.js 16+
+- npm or yarn
 
-### Backend (Django)
-```bash
-cd Backend
-python -m venv venv
-# Windows PowerShell
-venv\Scripts\Activate.ps1
+### Backend Setup
 
-pip install --upgrade pip
-# If requirements.txt exists, prefer:
-# pip install -r requirements.txt
-# Otherwise, install common deps:
-pip install django djangorestframework daphne channels channels-redis django-cors-headers cloudinary scikit-learn pandas numpy
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/ShareSpace.git
+   cd ShareSpace/Backend
+   ```
 
-python manage.py migrate
-# Optional seed data
-# python manage.py seed_listings
+2. **Create and activate virtual environment**
+   ```bash
+   python -m venv venv
+   # On Windows
+   venv\Scripts\activate
+   # On macOS/Linux
+   source venv/bin/activate
+   ```
 
-python manage.py runserver
+3. **Install dependencies**
+   ```bash
+   pip install django djangorestframework django-cors-headers djangorestframework-simplejwt channels cloudinary django-cloudinary-storage whitenoise xgboost scikit-learn pandas numpy joblib
+   ```
+
+4. **Set up environment variables**
+   Create a `.env` file in the Backend directory:
+   ```env
+   SECRET_KEY=your-secret-key-here
+   DEBUG=True
+   CLOUDINARY_CLOUD_NAME=your-cloudinary-name
+   CLOUDINARY_API_KEY=your-cloudinary-api-key
+   CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+   ```
+
+5. **Run migrations**
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
+
+6. **Create superuser**
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+7. **Train the ML model (optional)**
+   ```bash
+   python train_model.py
+   ```
+
+8. **Start the development server**
+   ```bash
+   python manage.py runserver
+   ```
+
+### Frontend Setup
+
+1. **Navigate to Frontend directory**
+   ```bash
+   cd ../Frontend
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+The application will be available at:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+- Django Admin: http://localhost:8000/admin
+
+## 📱 Usage
+
+### For Seekers
+1. **Sign up** and complete your profile with lifestyle preferences
+2. **Browse listings** using advanced filters
+3. **Get personalized matches** based on compatibility scores
+4. **Chat with potential roommates** through the integrated messaging system
+5. **Save favorites** and manage your matches
+
+### For Listers
+1. **Create a listing** with detailed information about your space
+2. **Set preferences** for ideal roommates
+3. **Review compatibility scores** of potential matches
+4. **Communicate with seekers** through the chat system
+5. **Manage your listing** and track roommate applications
+
+## 🤖 Machine Learning Model
+
+The roommate matching system uses an XGBoost regressor trained on compatibility factors:
+
+### Features Analyzed
+- **Lifestyle Habits**: Cleanliness, noise tolerance, sleep schedule
+- **Social Preferences**: Social level, guest frequency, smoking habits
+- **Financial Compatibility**: Budget alignment and tolerance
+- **Personal Attributes**: Gender preferences, work schedule, occupation
+- **Personality**: MBTI type integration for deeper compatibility
+
+### Model Performance
+- **R² Score**: Measures prediction accuracy
+- **Cross-validation**: Ensures model reliability
+- **Feature Importance**: Identifies key compatibility factors
+
+## 📁 Project Structure
+
 ```
-API default: `http://127.0.0.1:8000/`.
-
-### Frontend (Vite + React)
-```bash
-cd Frontend
-npm install
-npm run dev
-```
-App default: `http://localhost:5173/`.
-
----
-
-## Environment Variables
-
-Backend (`Backend/.env`):
-```
-DJANGO_SECRET_KEY=change-me
-DJANGO_DEBUG=True
-DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost
-CORS_ALLOWED_ORIGINS=http://localhost:5173
-REDIS_URL=redis://localhost:6379/0
-CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
+ShareSpace/
+├── Backend/
+│   ├── chat/                 # WebSocket chat functionality
+│   ├── listings/             # Property listing management
+│   ├── users/                # User profiles and authentication
+│   ├── sharespace_backend/   # Django project settings
+│   ├── train_model.py        # ML model training script
+│   └── manage.py
+├── Frontend/
+│   ├── src/
+│   │   ├── components/       # Reusable UI components
+│   │   ├── features/         # Feature-specific components
+│   │   ├── hooks/            # Custom React hooks
+│   │   └── lib/              # Utility functions
+│   └── public/               # Static assets
+└── README.md
 ```
 
-Frontend (`Frontend/.env.local`):
-```
-VITE_API_BASE_URL=http://127.0.0.1:8000
-VITE_WS_BASE_URL=ws://127.0.0.1:8000
-```
+## 🔧 API Endpoints
 
----
+### Authentication
+- `POST /api/auth/register/` - User registration
+- `POST /api/auth/login/` - User login
+- `POST /api/auth/refresh/` - Token refresh
 
-## WebSockets (Chat)
-`runserver` runs ASGI by default. For production‑like dev:
-```bash
-cd Backend
-daphne -b 0.0.0.0 -p 8000 sharespace_backend.asgi:application
-```
-If using Redis channel layer, ensure Redis is running and configured in settings.
+### Users
+- `GET /api/users/profile/` - Get user profile
+- `PUT /api/users/profile/` - Update user profile
+- `GET /api/users/matches/` - Get compatibility matches
 
----
+### Listings
+- `GET /api/listings/` - List all active listings
+- `POST /api/listings/` - Create new listing
+- `GET /api/listings/{id}/` - Get listing details
+- `PUT /api/listings/{id}/` - Update listing
 
-## Technical Decisions (brief)
-- Authentication: DRF with token/JWT‑style flows; CORS configured for local dev.
-- Realtime: Channels with ASGI; optional Redis for scalable channel layers.
-- Data: SQLite for local simplicity; easily replaceable with Postgres.
-- ML: Pretrained scikit‑learn pipeline loaded on demand for deterministic results.
-- Frontend: Vite for fast DX; Tailwind for utility‑first styling; componentized features.
+### Chat
+- `GET /api/chat/conversations/` - Get user conversations
+- `POST /api/chat/conversations/` - Start new conversation
+- WebSocket: `/ws/chat/{conversation_id}/` - Real-time messaging
 
-## Security & Quality
-- CORS restricted to dev origin by default
-- Secrets pulled from environment variables
-- Minimal test coverage included for auth and WebSockets
+## 🧪 Testing
 
-## Tests
+### Backend Testing
 ```bash
 cd Backend
 python manage.py test
 ```
-See examples in `Backend/test_token.py` and `Backend/test_websocket.py`.
 
----
-
-## Useful Commands
+### Frontend Testing
 ```bash
-# Backend
-python manage.py makemigrations
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-
-# Frontend
-npm run dev
-npm run build
-npm run preview
+cd Frontend
+npm run test
 ```
 
----
+## 🙏 Acknowledgments
 
-## Roadmap
-- Dockerize dev and prod environments
-- Integrate Redis for production WebSockets
-- Add Postgres and migrations for cloud deployment
-- Expand unit/integration tests (pytest + frontend testing)
-- Add CI (GitHub Actions) and CD targets
-
-## Contributing
-1. Create a feature branch
-2. Commit with clear messages
-3. Open a PR with context/screenshots
-
-## License
-MIT (add a `LICENSE` file if missing).
-
----
-
-## About This Project
-I built ShareSpace to demonstrate full‑stack skills across backend, frontend, realtime communication, and practical ML integration. If you have feedback or opportunities, feel free to reach out.
-
-Contact
-- Email: your.email@example.com
-- LinkedIn: https://www.linkedin.com/in/your‑profile
-- Portfolio: https://your‑portfolio.example
+- Django and React communities for excellent documentation
+- XGBoost team for the powerful ML library
+- Cloudinary for image management services
 
 
+**Made with ❤️ for better roommate matching**
